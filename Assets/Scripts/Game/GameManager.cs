@@ -2,8 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
+using Photon.Pun;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviourPunCallbacks
 {
 	public static GameManager Instance;
 	public GameState GameState;
@@ -11,6 +13,7 @@ public class GameManager : MonoBehaviour
 	[SerializeField] private GameObject _table;
 
 	public int PlayerSide;
+	private int _readyToChangeState;
 
 	private void Awake()
 	{
@@ -20,25 +23,39 @@ public class GameManager : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		PlayerSide = UnityEngine.Random.Range(0, 2);
-		_table.transform.Rotate(0f, 0f, (float)PlayerSide*180f, Space.World);
-
-		this.ChangeState(GameState.GenerateGrid);
+		if (PhotonNetwork.IsMasterClient)
+		{
+			SetPlayerArmy(UnityEngine.Random.Range(0, 2));
+			photonView.RPC("SetPlayerArmy", PhotonNetwork.PlayerList[1], (PlayerSide == 0) ? 1 : 0);
+		}
 	}
 
+	[PunRPC]
+	private void SetPlayerArmy(int exercito)
+    {
+		PlayerSide = exercito;
+		_table.transform.Rotate(0f, 0f, (float)PlayerSide * 180f, Space.World);
+		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.GenerateGrid);
+	}
+
+    [PunRPC]
 	public void ChangeState(GameState newState)
 	{
+		_readyToChangeState++;
+		if (_readyToChangeState < PhotonNetwork.PlayerList.Length)
+			return;
+		_readyToChangeState = 0;
+
 		GameState = newState;
 		switch (newState)
 		{
 			case GameState.GenerateGrid:
 				GridManager.Instance.GenerateGrid();
-				this.ChangeState(GameState.SpawnUnits);
+				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.SpawnUnits);
 				break;
 			case GameState.SpawnUnits:
-				UnitManager.Instance.SpawnRedUnits();
-				UnitManager.Instance.SpawnBlueUnits();
-				this.ChangeState(GameState.RedMove);
+				UnitManager.Instance.SpawnOwnUnits();
+				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.RedMove);
 				break;
 			case GameState.RedMove:
 				HUDManager.Instance.UpdateTurnInfo();

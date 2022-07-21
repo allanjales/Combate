@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class HUDManager : MonoBehaviour
@@ -106,5 +107,12 @@ public class HUDManager : MonoBehaviour
 			RectTransformComponent.pivot     = new Vector2(1f, 0f);
 			RectTransformComponent.anchoredPosition = new Vector2(-10f, 70f);
 		}
+	}
+
+	public void SairJogo()
+	{
+		GestorDeRede.Instancia.SairDoLobby();
+		Destroy(GestorDeRede.Instancia.gameObject);
+		SceneManager.LoadScene("Menu");
 	}
 }

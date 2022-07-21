@@ -45,6 +45,9 @@ MonoBehaviour:
   - ChangeState
   - SpawnTile
   - GenerateGrid
+  - SetPlayerArmy
+  - ReadyChangeState
+  - SpawnOwnUnits
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1
