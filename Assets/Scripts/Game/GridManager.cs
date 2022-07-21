@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
 
 	[SerializeField] private Tile _tilePrefab;
 
-	private Dictionary<Vector2, Tile> _tiles;
+	public Dictionary<Vector2, Tile> _tiles;
 
 	private void Awake()
 	{
@@ -64,5 +64,13 @@ public class GridManager : MonoBehaviour
 			return _tiles.Where(t => t.Key.y < 4 && t.Value.Walkable).OrderBy(t => UnityEngine.Random.value).First().Value;
 		else
 			return _tiles.Where(t => t.Key.y > 5 && t.Value.Walkable).OrderBy(t => UnityEngine.Random.value).First().Value;
+	}
+
+	public void HightLightTileUpdateEveryTile()
+	{
+		foreach (var tile in _tiles)
+		{
+			tile.Value.HightLightTileUpdate();
+		}
 	}
 }

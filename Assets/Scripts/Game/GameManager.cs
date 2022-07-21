@@ -21,7 +21,6 @@ public class GameManager : MonoBehaviour
 	void Start()
 	{
 		PlayerSide = UnityEngine.Random.Range(0, 2);
-		PlayerSide = 0;
 		_table.transform.Rotate(0f, 0f, (float)PlayerSide*180f, Space.World);
 
 		this.ChangeState(GameState.GenerateGrid);
