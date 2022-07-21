@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
+using Photon.Pun;
 
-public class GridManager : MonoBehaviour
+public class GridManager : MonoBehaviourPunCallbacks
 {
 	public static GridManager Instance;
 
@@ -72,5 +73,31 @@ public class GridManager : MonoBehaviour
 		{
 			tile.Value.HightLightTileUpdate();
 		}
+	}
+
+	[PunRPC]
+	public void MoveFromTileToTile(Vector2 From, Vector2 To)
+	{
+		GetTileAtPosition(new Vector2(9, 9) - To).SetUnit(GetTileAtPosition(new Vector2(9, 9) - From).OccupiedUnit);
+	}
+
+    [PunRPC]
+	public void SwapUnitsBetweenTiles(Vector2 pos1, Vector2 pos2)
+	{
+		Tile tile1 = GetTileAtPosition(new Vector2(9, 9) - pos1);
+		Tile tile2 = GetTileAtPosition(new Vector2(9, 9) - pos2);
+
+		if (tile1.OccupiedUnit == null || tile2.OccupiedUnit == null)
+			return;
+
+		Unit temp = tile1.OccupiedUnit;
+		tile1.OccupiedUnit = tile2.OccupiedUnit;
+		tile2.OccupiedUnit = temp;
+
+		tile1.OccupiedUnit.transform.position = tile1.transform.position;
+		tile2.OccupiedUnit.transform.position = tile2.transform.position;
+
+		tile1.OccupiedUnit.OccupiedTile = tile1;
+		tile2.OccupiedUnit.OccupiedTile = tile2;
 	}
 }

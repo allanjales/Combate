@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class Tile : MonoBehaviour
 {
@@ -39,6 +40,21 @@ public class Tile : MonoBehaviour
 		OccupiedUnit = unit;
 		unit.OccupiedTile = this;
 	}
+	public void SwapUnits(Tile tile1)
+	{
+		if (tile1.OccupiedUnit == null || OccupiedUnit == null)
+			return;
+
+		Unit temp = tile1.OccupiedUnit;
+		tile1.OccupiedUnit = OccupiedUnit;
+		OccupiedUnit = temp;
+
+		tile1.OccupiedUnit.transform.position = tile1.transform.position;
+		OccupiedUnit.transform.position = transform.position;
+
+		tile1.OccupiedUnit.OccupiedTile = tile1;
+		OccupiedUnit.OccupiedTile = this;
+	}
 
 	public void HightLightTileUpdate()
 	{
@@ -49,14 +65,14 @@ public class Tile : MonoBehaviour
 			return;
 		}
 
-		if (CanSelectedUnitMoveToThisTile())
+		if (CanSelectedUnitMoveToThisTile() && GameManager.Instance.GameState != GameState.PositionateUnits)
 		{
 			_Highlight.GetComponent<SpriteRenderer>().color = _WalkableHighlightColor;
 			_Highlight.SetActive(true);
 			return;
 		}
 
-		if (CanSelectedUnitAttackThisTile())
+		if (CanSelectedUnitAttackThisTile() && GameManager.Instance.GameState != GameState.PositionateUnits)
 		{
 			_Highlight.GetComponent<SpriteRenderer>().color = _AttackableHightlightColor;
 			_Highlight.SetActive(true);
@@ -167,22 +183,54 @@ public class Tile : MonoBehaviour
 		if (!GameManager.Instance.IsMyMoveTurn())
 			return;
 
-		//If can't move unit, ignore it
+		//If can't move unit to this tile, ignore it
 		if (!CanSelectedUnitMoveToThisTile())
 			return;
 
 		//Move
 		if (OccupiedUnit == null && UnitManager.Instance.SelectedUnit != null)
 		{
-			this.SetUnit(UnitManager.Instance.SelectedUnit);
+			GridManager.Instance.photonView.RPC("MoveFromTileToTile", RpcTarget.OthersBuffered,
+				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)this.transform.position - new Vector2(0.5f, 0.5f));
+			SetUnit(UnitManager.Instance.SelectedUnit);
 			UnitManager.Instance.SetSelectedUnit(null);
 			return;
 		}
 	}
 
+	private void SwapOrSelectUnitsOnMouseDown()
+    {
+		//Unselect
+		if (OccupiedUnit != null && OccupiedUnit == UnitManager.Instance.SelectedUnit)
+		{
+			UnitManager.Instance.SetSelectedUnit(null);
+			return;
+		}
+
+		//Select
+		if (OccupiedUnit != null && OccupiedUnit.UnitColor == GameManager.Instance.PlayerSide && UnitManager.Instance.SelectedUnit == null)
+		{
+			UnitManager.Instance.SetSelectedUnit((Unit)OccupiedUnit);
+			return;
+		}
+
+		//If there is no unit selected, ignore it
+		if (UnitManager.Instance.SelectedUnit == null)
+			return;
+
+		//Swap
+		GridManager.Instance.photonView.RPC("SwapUnitsBetweenTiles", RpcTarget.OthersBuffered,
+			(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)this.transform.position - new Vector2(0.5f, 0.5f));
+		SwapUnits(UnitManager.Instance.SelectedUnit.OccupiedTile);
+		UnitManager.Instance.SetSelectedUnit(null);
+	}
+
 	private void OnMouseDown()
 	{
-		this.SelectOrMoveUnitOnMouseDown();
+		if (GameManager.Instance.GameState == GameState.PositionateUnits)
+			SwapOrSelectUnitsOnMouseDown();
+		else
+			SelectOrMoveUnitOnMouseDown();
 		GridManager.Instance.HightLightTileUpdateEveryTile();
 	}
 }

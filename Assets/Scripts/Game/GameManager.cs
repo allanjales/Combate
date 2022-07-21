@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 	public int PlayerSide;
 	private int _readyToChangeState;
 
+	public bool GodEye = false;
+
 	private void Awake()
 	{
 		Instance = this;
@@ -26,7 +28,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 		if (PhotonNetwork.IsMasterClient)
 		{
 			SetPlayerArmy(UnityEngine.Random.Range(0, 2));
-			photonView.RPC("SetPlayerArmy", PhotonNetwork.PlayerList[1], (PlayerSide == 0) ? 1 : 0);
+			if (PhotonNetwork.PlayerList.Length > 1)
+				photonView.RPC("SetPlayerArmy", PhotonNetwork.PlayerList[1], (PlayerSide == 0) ? 1 : 0);
 		}
 	}
 
@@ -55,7 +58,10 @@ public class GameManager : MonoBehaviourPunCallbacks
 				break;
 			case GameState.SpawnUnits:
 				UnitManager.Instance.SpawnOwnUnits();
-				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.RedMove, false);
+				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.PositionateUnits, false);
+				break;
+			case GameState.PositionateUnits:
+				HUDManager.Instance.UpdateTurnInfo();
 				break;
 			case GameState.RedMove:
 				HUDManager.Instance.UpdateTurnInfo();
@@ -95,10 +101,15 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 			GameState newGameState = (GameState)(((int)GameManager.Instance.GameState + 1) % Enum.GetNames(typeof(GameState)).Length);
 
-			if ((int)newGameState < 2)
+			if ((int)newGameState < (int)GameState.RedMove)
 				newGameState = GameState.RedMove;
 
 			photonView.RPC("ChangeState", RpcTarget.AllBuffered, newGameState, true);
+		}
+
+		if (Input.GetKeyDown("e"))
+		{
+			GodEye = GodEye ? false : true;
 		}
 	}
 	public int GetPlayerTurn()
@@ -123,8 +134,9 @@ public enum GameState
 {
 	GenerateGrid = 0,
 	SpawnUnits = 1,
-	RedMove = 2,
-	RedAttack= 3,
-	BlueMove = 4,
-	BlueAttack = 5
+	PositionateUnits = 2,
+	RedMove = 3,
+	RedAttack= 4,
+	BlueMove = 5,
+	BlueAttack = 6
 }

@@ -847,6 +847,7 @@ MonoBehaviour:
   _TileUnitNameText: {fileID: 702393870}
   _RedArmy: {r: 0.76470596, g: 0.20784315, b: 0.14901961, a: 1}
   _BlueArmy: {r: 0.17254902, g: 0.5411765, b: 0.7568628, a: 1}
+  _PositionateUnitesIconSprite: {fileID: 21300000, guid: 54f91c5a755e2a546827c3a34123fa29, type: 3}
   _MoveTurnIconSprite: {fileID: 21300000, guid: 2bd2b03f4caf4c9439693e207783d98c, type: 3}
   _AttackTurnIconSprite: {fileID: 21300000, guid: 4f3cce371f9cab543b929163706c534f, type: 3}
 --- !u!1 &1039563153
