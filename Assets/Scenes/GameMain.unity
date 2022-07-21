@@ -744,7 +744,8 @@ MonoBehaviour:
   - Marechal
   - Bomba
   - Bandeira
-  _unitPrefab: {fileID: -1617730428207518363, guid: 30723edc864be96428e5442cd7a22fbd, type: 3}
+  _unitPrefab: {fileID: -1617730428207518363, guid: 30723edc864be96428e5442cd7a22fbd,
+    type: 3}
   SelectedUnit: {fileID: 0}
 --- !u!1 &974753444
 GameObject:
@@ -800,8 +801,10 @@ MonoBehaviour:
   _TileUnitNameText: {fileID: 702393870}
   _RedArmy: {r: 0.76470596, g: 0.20784315, b: 0.14901961, a: 1}
   _BlueArmy: {r: 0.17254902, g: 0.5411765, b: 0.7568628, a: 1}
-  _MoveTurnIconSprite: {fileID: 21300000, guid: 2bd2b03f4caf4c9439693e207783d98c, type: 3}
-  _AttackTurnIconSprite: {fileID: 21300000, guid: 4f3cce371f9cab543b929163706c534f, type: 3}
+  _MoveTurnIconSprite: {fileID: 21300000, guid: 2bd2b03f4caf4c9439693e207783d98c,
+    type: 3}
+  _AttackTurnIconSprite: {fileID: 21300000, guid: 4f3cce371f9cab543b929163706c534f,
+    type: 3}
 --- !u!1 &1039563153
 GameObject:
   m_ObjectHideFlags: 0
@@ -846,7 +849,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70b897c2f7a011f4fab5dd8a5dae302b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tilePrefab: {fileID: 1735803842110590190, guid: bb4d974ad16a21e47b6462e5e717fd8d, type: 3}
+  _tilePrefab: {fileID: 1735803842110590190, guid: bb4d974ad16a21e47b6462e5e717fd8d,
+    type: 3}
 --- !u!1 &1468901060
 GameObject:
   m_ObjectHideFlags: 0
