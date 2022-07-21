@@ -60,6 +60,7 @@ public class HUDManager : MonoBehaviour
 
 	public void UpdateTurnInfo()
 	{
+		_GameStateInfoObjectHolder.SetActive(true);
 		switch (GameManager.Instance.GameState)
 		{
 			case GameState.RedMove:
@@ -85,6 +86,7 @@ public class HUDManager : MonoBehaviour
 			default:
 				_GameStateInfoObject.GetComponent<Image>().sprite = null;
 				_GameStateInfoObjectHolder.GetComponent<Image>().color = new Color(0, 0, 0, 50);
+				_GameStateInfoObjectHolder.SetActive(false);
 				break;
 		}
 	}

@@ -35,14 +35,14 @@ public class GameManager : MonoBehaviourPunCallbacks
     {
 		PlayerSide = exercito;
 		_table.transform.Rotate(0f, 0f, (float)PlayerSide * 180f, Space.World);
-		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.GenerateGrid);
+		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.GenerateGrid, false);
 	}
 
     [PunRPC]
-	public void ChangeState(GameState newState)
+	public void ChangeState(GameState newState, bool doNotWaitOthersToBeReady = false)
 	{
 		_readyToChangeState++;
-		if (_readyToChangeState < PhotonNetwork.PlayerList.Length)
+		if (!doNotWaitOthersToBeReady && _readyToChangeState < PhotonNetwork.PlayerList.Length)
 			return;
 		_readyToChangeState = 0;
 
@@ -51,11 +51,11 @@ public class GameManager : MonoBehaviourPunCallbacks
 		{
 			case GameState.GenerateGrid:
 				GridManager.Instance.GenerateGrid();
-				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.SpawnUnits);
+				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.SpawnUnits, false);
 				break;
 			case GameState.SpawnUnits:
 				UnitManager.Instance.SpawnOwnUnits();
-				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.RedMove);
+				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.RedMove, false);
 				break;
 			case GameState.RedMove:
 				HUDManager.Instance.UpdateTurnInfo();
@@ -79,20 +79,26 @@ public class GameManager : MonoBehaviourPunCallbacks
 		return (GameManager.Instance.GameState == GameState.RedMove && (GameManager.Instance.PlayerSide == 0))
 			|| GameManager.Instance.GameState == GameState.BlueMove && (GameManager.Instance.PlayerSide == 1);
 	}
+
+	public bool IsMyAttackTurn()
+	{
+		return (GameManager.Instance.GameState == GameState.RedAttack && (GameManager.Instance.PlayerSide == 0))
+			|| GameManager.Instance.GameState == GameState.BlueAttack && (GameManager.Instance.PlayerSide == 1);
+	}
+
 	void Update()
 	{
-
 		if (Input.GetKeyDown("n"))
 		{
 			if ((int)GameManager.Instance.GameState < 2)
 				return;
 
-			GameManager.Instance.GameState = (GameState)(((int)GameManager.Instance.GameState + 1) % Enum.GetNames(typeof(GameState)).Length);
+			GameState newGameState = (GameState)(((int)GameManager.Instance.GameState + 1) % Enum.GetNames(typeof(GameState)).Length);
 
-			if ((int)GameManager.Instance.GameState < 2)
-				GameManager.Instance.GameState = GameState.RedMove;
+			if ((int)newGameState < 2)
+				newGameState = GameState.RedMove;
 
-			HUDManager.Instance.UpdateTurnInfo();
+			photonView.RPC("ChangeState", RpcTarget.AllBuffered, newGameState, true);
 		}
 	}
 	public int GetPlayerTurn()
