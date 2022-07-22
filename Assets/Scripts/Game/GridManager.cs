@@ -81,7 +81,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 		GetTileAtPosition(new Vector2(9, 9) - To).SetUnit(GetTileAtPosition(new Vector2(9, 9) - From).OccupiedUnit);
 	}
 
-    [PunRPC]
+	[PunRPC]
 	public void SwapUnitsBetweenTiles(Vector2 pos1, Vector2 pos2)
 	{
 		Tile tile1 = GetTileAtPosition(new Vector2(9, 9) - pos1);
@@ -99,5 +99,41 @@ public class GridManager : MonoBehaviourPunCallbacks
 
 		tile1.OccupiedUnit.OccupiedTile = tile1;
 		tile2.OccupiedUnit.OccupiedTile = tile2;
+	}
+
+	[PunRPC]
+	public void AttackTile(int sender, Vector2 AttackerPos, Vector2 TargetPos)
+	{
+		Unit AttackerUnit = GetTileAtPosition((GameManager.Instance.PlayerSide == sender) ? AttackerPos : (new Vector2(9, 9) - AttackerPos)).OccupiedUnit;
+		Unit TargetUnit = GetTileAtPosition((GameManager.Instance.PlayerSide == sender) ? TargetPos : (new Vector2(9, 9) - TargetPos)).OccupiedUnit;
+
+		if (TargetUnit.UnitNumber == 12)
+		{
+			GameManager.Instance.FinishGame(AttackerUnit.UnitColor);
+			return;
+		}
+
+		if (TargetUnit.UnitNumber == 11)
+		{
+			TargetUnit.DeleteItself();
+			if (AttackerUnit.UnitNumber != 3)
+				AttackerUnit.DeleteItself();
+			return;
+		}
+
+		if (AttackerUnit.UnitNumber == 1 && TargetUnit.UnitNumber == 10)
+        {
+			TargetUnit.DeleteItself();
+			return;
+        }
+
+		if (AttackerUnit.UnitNumber == TargetUnit.UnitNumber)
+		{
+			AttackerUnit.DeleteItself();
+			TargetUnit.DeleteItself();
+			return;
+		}
+
+		((AttackerUnit.UnitNumber > TargetUnit.UnitNumber) ? TargetUnit : AttackerUnit).DeleteItself();
 	}
 }

@@ -26,7 +26,7 @@ public class Tile : MonoBehaviour
 	void OnMouseEnter()
 	{
 		//Change highlight hover color
-		if (GameManager.Instance.GameState == GameState.PositionateUnits)
+		if (GameManager.Instance.GameState == GameState.PositionateUnits && OccupiedUnit != null && OccupiedUnit.UnitColor == GameManager.Instance.PlayerSide)
 			_HighlightHover.GetComponent<SpriteRenderer>().color = new Color(_SwapHighlightColor.r, _SwapHighlightColor.g, _SwapHighlightColor.b, _OriginalHighlightHoverColor.a);
 		else
 			_HighlightHover.GetComponent<SpriteRenderer>().color = _OriginalHighlightHoverColor;
@@ -203,6 +203,16 @@ public class Tile : MonoBehaviour
 		if (!GameManager.Instance.IsMyMoveTurn())
 			return;
 
+		//Attack
+		if (CanSelectedUnitAttackThisTile())
+		{
+			GridManager.Instance.photonView.RPC("AttackTile", RpcTarget.AllBuffered, GameManager.Instance.PlayerSide,
+				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)this.transform.position - new Vector2(0.5f, 0.5f));
+			UnitManager.Instance.SetSelectedUnit(null);
+			GameManager.Instance.NextTurn();
+			return;
+		}
+
 		//If can't move unit to this tile, ignore it
 		if (!CanSelectedUnitMoveToThisTile())
 			return;
@@ -214,6 +224,7 @@ public class Tile : MonoBehaviour
 				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)this.transform.position - new Vector2(0.5f, 0.5f));
 			SetUnit(UnitManager.Instance.SelectedUnit);
 			UnitManager.Instance.SetSelectedUnit(null);
+			GameManager.Instance.NextTurn();
 			return;
 		}
 	}
@@ -244,6 +255,11 @@ public class Tile : MonoBehaviour
 		SwapUnits(UnitManager.Instance.SelectedUnit.OccupiedTile);
 		UnitManager.Instance.SetSelectedUnit(null);
 	}
+
+	private void AttackOnMouseDown()
+    {
+
+    }
 
 	private void OnMouseDown()
 	{

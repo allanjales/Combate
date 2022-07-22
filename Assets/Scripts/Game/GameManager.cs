@@ -101,12 +101,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 			if ((int)GameManager.Instance.GameState < 2)
 				return;
 
-			GameState newGameState = (GameState)(((int)GameManager.Instance.GameState + 1) % Enum.GetNames(typeof(GameState)).Length);
-
-			if ((int)newGameState < (int)GameState.RedMove)
-				newGameState = GameState.RedMove;
-
-			photonView.RPC("ChangeState", RpcTarget.AllBuffered, newGameState, true);
+			NextTurn();
 		}
 
 		if (Input.GetKeyDown("e"))
@@ -130,6 +125,21 @@ public class GameManager : MonoBehaviourPunCallbacks
 				return -1;
 		}
 	}
+
+	public void NextTurn()
+    {
+		List<GameState> SwitchGameStates = new List<GameState> { GameState.RedMove, GameState.RedAttack, GameState.BlueMove, GameState.BlueAttack };
+		int index = SwitchGameStates.IndexOf(GameManager.Instance.GameState);
+
+		GameState newGameState = (GameState)((index + 1) % SwitchGameStates.Count + 3);
+
+		photonView.RPC("ChangeState", RpcTarget.AllBuffered, newGameState, true);
+	}
+
+	public void FinishGame(int winner)
+    {
+		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.Finish, true);
+	}
 }
 
 public enum GameState
@@ -140,5 +150,6 @@ public enum GameState
 	RedMove = 3,
 	RedAttack= 4,
 	BlueMove = 5,
-	BlueAttack = 6
+	BlueAttack = 6,
+	Finish = 7
 }

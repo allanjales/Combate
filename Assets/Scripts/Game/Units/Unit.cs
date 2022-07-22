@@ -38,6 +38,13 @@ public class Unit : MonoBehaviour
 		_spriteRenderer.sprite = (this.UnitColor == 0) ? _sprites_vermelhas[this.UnitNumber ] : _sprites_azuis[this.UnitNumber ];
 	}
 
+	public void DeleteItself()
+    {
+		OccupiedTile.OccupiedUnit = null;
+		if (UnitManager.Instance.SelectedUnit == this) UnitManager.Instance.SelectedUnit = null;
+		Destroy(gameObject);
+    }
+
 	public string GetUnitNumberString()
 	{
 		if (UnitNumber > 0 && UnitNumber < 11)

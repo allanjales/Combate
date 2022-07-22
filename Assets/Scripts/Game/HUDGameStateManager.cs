@@ -16,7 +16,7 @@ public class HUDGameStateManager : MonoBehaviour
 	}
 
 	private void HideEveryGameStateTurnInfo()
-    {
+	{
 		foreach (GameObject GameStateTurnInfo in _ListGameStateOwnTurnInfo)
 			GameStateTurnInfo.SetActive(false);
 
@@ -34,7 +34,7 @@ public class HUDGameStateManager : MonoBehaviour
 	}
 
 	private List<GameObject> GetListGameStateTurnInfoByArmy(int army)
-    {
+	{
 		return (GameManager.Instance.PlayerSide == army) ? _ListGameStateOwnTurnInfo : _ListGameStateEnemyTurnInfo;
 	}
 
@@ -46,11 +46,11 @@ public class HUDGameStateManager : MonoBehaviour
 		switch (GameManager.Instance.GameState)
 		{
 			case GameState.PositionateUnits:
-                _ListGameStateOwnTurnInfo[0].SetActive(true);
+				_ListGameStateOwnTurnInfo[0].SetActive(true);
 				_ListGameStateEnemyTurnInfo[0].SetActive(true);
 				break;
 			case GameState.RedMove:
-                GetListGameStateTurnInfoByArmy(0)[1].SetActive(true);
+				GetListGameStateTurnInfoByArmy(0)[1].SetActive(true);
 				GetListGameStateTurnInfoByArmy(0)[2].SetActive(true);
 				break;
 			case GameState.RedAttack:
