@@ -189,6 +189,7 @@ MonoBehaviour:
   _SelectedHighlightColor: {r: 1, g: 1, b: 0, a: 0.5882353}
   _WalkableHighlightColor: {r: 0, g: 1, b: 0, a: 0.5882353}
   _AttackableHightlightColor: {r: 1, g: 0, b: 0, a: 0.5882353}
+  _SwapHighlightColor: {r: 0, g: 1, b: 1, a: 0.5882353}
   OccupiedUnit: {fileID: 0}
 --- !u!61 &7947030313669996166
 BoxCollider2D:

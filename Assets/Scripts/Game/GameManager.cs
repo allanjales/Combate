@@ -61,23 +61,25 @@ public class GameManager : MonoBehaviourPunCallbacks
 				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.PositionateUnits, false);
 				break;
 			case GameState.PositionateUnits:
-				HUDManager.Instance.UpdateTurnInfo();
+				HUDGameStateManager.Instance.UpdateTurnInfo();
 				break;
 			case GameState.RedMove:
-				HUDManager.Instance.UpdateTurnInfo();
+				HUDGameStateManager.Instance.UpdateTurnInfo();
 				break;
 			case GameState.RedAttack:
-				HUDManager.Instance.UpdateTurnInfo();
+				HUDGameStateManager.Instance.UpdateTurnInfo();
 				break;
 			case GameState.BlueMove:
-				HUDManager.Instance.UpdateTurnInfo();
+				HUDGameStateManager.Instance.UpdateTurnInfo();
 				break;
 			case GameState.BlueAttack:
-				HUDManager.Instance.UpdateTurnInfo();
+				HUDGameStateManager.Instance.UpdateTurnInfo();
 				break;
 			default:
 				throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
 		}
+
+		GridManager.Instance.HightLightTileUpdateEveryTile();
 	}
 
 	public bool IsMyMoveTurn()

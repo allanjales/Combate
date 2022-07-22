@@ -6,8 +6,9 @@ using Photon.Pun;
 public class Tile : MonoBehaviour
 {
 	[SerializeField] private GameObject _HighlightHover, _Highlight;
-	[SerializeField] private Color _SelectedHighlightColor, _WalkableHighlightColor, _AttackableHightlightColor;
+	[SerializeField] private Color _SelectedHighlightColor, _WalkableHighlightColor, _AttackableHightlightColor, _SwapHighlightColor;
 
+	private Color _OriginalHighlightHoverColor;
 	public Unit OccupiedUnit;
 
 	public bool Walkable => OccupiedUnit == null;
@@ -18,11 +19,18 @@ public class Tile : MonoBehaviour
 
 	private void Start()
 	{
+		_OriginalHighlightHoverColor = _HighlightHover.GetComponent<SpriteRenderer>().color;
 		this.GetComponent<SpriteRenderer>().sortingOrder = 1;
 	}
 
 	void OnMouseEnter()
 	{
+		//Change highlight hover color
+		if (GameManager.Instance.GameState == GameState.PositionateUnits)
+			_HighlightHover.GetComponent<SpriteRenderer>().color = new Color(_SwapHighlightColor.r, _SwapHighlightColor.g, _SwapHighlightColor.b, _OriginalHighlightHoverColor.a);
+		else
+			_HighlightHover.GetComponent<SpriteRenderer>().color = _OriginalHighlightHoverColor;
+
 		_HighlightHover.SetActive(true);
 		HUDManager.Instance.ShowTileUnit(this);
 	}
@@ -58,21 +66,33 @@ public class Tile : MonoBehaviour
 
 	public void HightLightTileUpdate()
 	{
+		//If this tile is selected
 		if (UnitManager.Instance.SelectedUnit != null && UnitManager.Instance.SelectedUnit.OccupiedTile == this)
 		{
-			_Highlight.GetComponent<SpriteRenderer>().color = _SelectedHighlightColor;
+			//If it is in positionate turn
+			if (GameManager.Instance.GameState == GameState.PositionateUnits)
+				_Highlight.GetComponent<SpriteRenderer>().color = _SwapHighlightColor;
+			else
+				_Highlight.GetComponent<SpriteRenderer>().color = _SelectedHighlightColor;
 			_Highlight.SetActive(true);
 			return;
 		}
 
-		if (CanSelectedUnitMoveToThisTile() && GameManager.Instance.GameState != GameState.PositionateUnits)
+		//If is in positionate turn, ignore it
+		if (GameManager.Instance.GameState == GameState.PositionateUnits)
+		{
+			_Highlight.SetActive(false);
+			return;
+		}
+
+		if (CanSelectedUnitMoveToThisTile())
 		{
 			_Highlight.GetComponent<SpriteRenderer>().color = _WalkableHighlightColor;
 			_Highlight.SetActive(true);
 			return;
 		}
 
-		if (CanSelectedUnitAttackThisTile() && GameManager.Instance.GameState != GameState.PositionateUnits)
+		if (CanSelectedUnitAttackThisTile())
 		{
 			_Highlight.GetComponent<SpriteRenderer>().color = _AttackableHightlightColor;
 			_Highlight.SetActive(true);
@@ -199,7 +219,7 @@ public class Tile : MonoBehaviour
 	}
 
 	private void SwapOrSelectUnitsOnMouseDown()
-    {
+	{
 		//Unselect
 		if (OccupiedUnit != null && OccupiedUnit == UnitManager.Instance.SelectedUnit)
 		{
