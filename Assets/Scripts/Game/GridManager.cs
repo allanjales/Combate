@@ -116,7 +116,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 		Unit AttackerUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? AttackerPos : (new Vector2(9, 9) - AttackerPos)).OccupiedUnit;
 		Unit TargetUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? TargetPos : (new Vector2(9, 9) - TargetPos)).OccupiedUnit;
 
-		HUDManager.Instance.ShowAttackedUnitInfo(TargetUnit);
+		HUDManager.Instance.ShowAttackedUnitInfo((GameManager.Instance.IsMyArmy(TargetUnit.UnitArmy)) ? AttackerUnit : TargetUnit);
 
 		if (TargetUnit.UnitNumber == 12)
 		{

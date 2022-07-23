@@ -112,7 +112,6 @@ public class HUDManager : MonoBehaviour
 		else
 			GameManager.Instance.photonView.RPC("CancelReadyForChangeState", RpcTarget.AllBuffered);
 		UpdateButtonAppearence();
-		Debug.Log("Hm");
 	}
 
 	public void UpdateButtonShow()
