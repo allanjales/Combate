@@ -26,7 +26,7 @@ public class Tile : MonoBehaviour
 	void OnMouseEnter()
 	{
 		//Change highlight hover color
-		if (GameManager.Instance.GameState == GameState.PositionateUnits && OccupiedUnit != null && OccupiedUnit.UnitColor == GameManager.Instance.PlayerSide)
+		if (GameManager.Instance.GameState == GameState.PositionateUnits && OccupiedUnit != null && OccupiedUnit.UnitArmy == GameManager.Instance.playerArmy)
 			_HighlightHover.GetComponent<SpriteRenderer>().color = new Color(_SwapHighlightColor.r, _SwapHighlightColor.g, _SwapHighlightColor.b, _OriginalHighlightHoverColor.a);
 		else
 			_HighlightHover.GetComponent<SpriteRenderer>().color = _OriginalHighlightHoverColor;
@@ -160,7 +160,7 @@ public class Tile : MonoBehaviour
 			return false;
 
 		//If is this tile is occupied by ally
-		if (OccupiedUnit.UnitColor == GameManager.Instance.PlayerSide)
+		if (OccupiedUnit.UnitArmy == GameManager.Instance.playerArmy)
 			return false;
 
 		//Can't attack due selected unit number
@@ -189,7 +189,7 @@ public class Tile : MonoBehaviour
 		}
 
 		//Select
-		if (OccupiedUnit != null && OccupiedUnit.UnitColor == GameManager.Instance.PlayerSide)
+		if (OccupiedUnit != null && OccupiedUnit.UnitArmy == GameManager.Instance.playerArmy)
 		{
 			UnitManager.Instance.SetSelectedUnit((Unit)OccupiedUnit);
 			return;
@@ -206,7 +206,7 @@ public class Tile : MonoBehaviour
 		//Attack
 		if (CanSelectedUnitAttackThisTile())
 		{
-			GridManager.Instance.photonView.RPC("AttackTile", RpcTarget.AllBuffered, GameManager.Instance.PlayerSide,
+			GridManager.Instance.photonView.RPC("AttackTile", RpcTarget.AllBuffered, GameManager.Instance.playerArmy,
 				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)this.transform.position - new Vector2(0.5f, 0.5f));
 			UnitManager.Instance.SetSelectedUnit(null);
 			GameManager.Instance.NextTurn();
@@ -239,7 +239,7 @@ public class Tile : MonoBehaviour
 		}
 
 		//Select
-		if (OccupiedUnit != null && OccupiedUnit.UnitColor == GameManager.Instance.PlayerSide && UnitManager.Instance.SelectedUnit == null)
+		if (OccupiedUnit != null && OccupiedUnit.UnitArmy == GameManager.Instance.playerArmy && UnitManager.Instance.SelectedUnit == null)
 		{
 			UnitManager.Instance.SetSelectedUnit((Unit)OccupiedUnit);
 			return;

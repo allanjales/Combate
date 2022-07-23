@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 	[SerializeField] private GameObject _table;
 
-	public int PlayerSide;
+	public int playerArmy;
 	private int _readyToChangeState;
 
 	public bool GodEye = false;
@@ -29,15 +29,15 @@ public class GameManager : MonoBehaviourPunCallbacks
 		{
 			SetPlayerArmy(UnityEngine.Random.Range(0, 2));
 			if (PhotonNetwork.PlayerList.Length > 1)
-				photonView.RPC("SetPlayerArmy", PhotonNetwork.PlayerList[1], (PlayerSide == 0) ? 1 : 0);
+				photonView.RPC("SetPlayerArmy", PhotonNetwork.PlayerList[1], (playerArmy == 0) ? 1 : 0);
 		}
 	}
 
 	[PunRPC]
 	private void SetPlayerArmy(int exercito)
     {
-		PlayerSide = exercito;
-		_table.transform.Rotate(0f, 0f, (float)PlayerSide * 180f, Space.World);
+		playerArmy = exercito;
+		_table.transform.Rotate(0f, 0f, (float)playerArmy * 180f, Space.World);
 		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.GenerateGrid, false);
 	}
 
@@ -61,37 +61,26 @@ public class GameManager : MonoBehaviourPunCallbacks
 				photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.PositionateUnits, false);
 				break;
 			case GameState.PositionateUnits:
-				HUDGameStateManager.Instance.UpdateTurnInfo();
 				break;
-			case GameState.RedMove:
-				HUDGameStateManager.Instance.UpdateTurnInfo();
+			case GameState.Finish:
+				UnitManager.Instance.UpdateEveryUnitSpriteRenderer();
 				break;
-			case GameState.RedAttack:
-				HUDGameStateManager.Instance.UpdateTurnInfo();
-				break;
-			case GameState.BlueMove:
-				HUDGameStateManager.Instance.UpdateTurnInfo();
-				break;
-			case GameState.BlueAttack:
-				HUDGameStateManager.Instance.UpdateTurnInfo();
-				break;
-			default:
-				throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
 		}
 
+		HUDGameStateManager.Instance.UpdateTurnInfo();
 		GridManager.Instance.HightLightTileUpdateEveryTile();
 	}
 
 	public bool IsMyMoveTurn()
 	{
-		return (GameManager.Instance.GameState == GameState.RedMove && (GameManager.Instance.PlayerSide == 0))
-			|| GameManager.Instance.GameState == GameState.BlueMove && (GameManager.Instance.PlayerSide == 1);
+		return (GameManager.Instance.GameState == GameState.RedMove && (GameManager.Instance.playerArmy == 0))
+			|| GameManager.Instance.GameState == GameState.BlueMove && (GameManager.Instance.playerArmy == 1);
 	}
 
 	public bool IsMyAttackTurn()
 	{
-		return (GameManager.Instance.GameState == GameState.RedAttack && (GameManager.Instance.PlayerSide == 0))
-			|| GameManager.Instance.GameState == GameState.BlueAttack && (GameManager.Instance.PlayerSide == 1);
+		return (GameManager.Instance.GameState == GameState.RedAttack && (GameManager.Instance.playerArmy == 0))
+			|| GameManager.Instance.GameState == GameState.BlueAttack && (GameManager.Instance.playerArmy == 1);
 	}
 
 	void Update()

@@ -27,7 +27,7 @@ public class HUDManager : MonoBehaviour
 			return;
 		}
 
-		_SelectedUnitInfoObject.GetComponent<Image>().color = (unit.UnitColor == 0) ? RedArmyColor : BlueArmyColor;
+		_SelectedUnitInfoObject.GetComponent<Image>().color = (unit.UnitArmy == 0) ? RedArmyColor : BlueArmyColor;
 		_SelectedUnitNumberText.text = unit.GetUnitNumberString();
 		_SelectedUnitNameText.text = unit.UnitName;
 		_SelectedUnitInfoObject.SetActive(true);
@@ -43,8 +43,8 @@ public class HUDManager : MonoBehaviour
 
 		if (tile.OccupiedUnit)
 		{
-			_TileUnitInfoObject.GetComponent<Image>().color = (tile.OccupiedUnit.UnitColor == 0) ? RedArmyColor : BlueArmyColor;
-			if (tile.OccupiedUnit.UnitColor == GameManager.Instance.PlayerSide || GameManager.Instance.GodEye)
+			_TileUnitInfoObject.GetComponent<Image>().color = (tile.OccupiedUnit.UnitArmy == 0) ? RedArmyColor : BlueArmyColor;
+			if (tile.OccupiedUnit.UnitArmy == GameManager.Instance.playerArmy || GameManager.Instance.GodEye)
 			{
 				_TileUnitNumberText.text = tile.OccupiedUnit.GetUnitNumberString();
 				_TileUnitNameText.text = tile.OccupiedUnit.UnitName;

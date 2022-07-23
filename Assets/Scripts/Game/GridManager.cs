@@ -104,12 +104,12 @@ public class GridManager : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void AttackTile(int sender, Vector2 AttackerPos, Vector2 TargetPos)
 	{
-		Unit AttackerUnit = GetTileAtPosition((GameManager.Instance.PlayerSide == sender) ? AttackerPos : (new Vector2(9, 9) - AttackerPos)).OccupiedUnit;
-		Unit TargetUnit = GetTileAtPosition((GameManager.Instance.PlayerSide == sender) ? TargetPos : (new Vector2(9, 9) - TargetPos)).OccupiedUnit;
+		Unit AttackerUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? AttackerPos : (new Vector2(9, 9) - AttackerPos)).OccupiedUnit;
+		Unit TargetUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? TargetPos : (new Vector2(9, 9) - TargetPos)).OccupiedUnit;
 
 		if (TargetUnit.UnitNumber == 12)
 		{
-			GameManager.Instance.FinishGame(AttackerUnit.UnitColor);
+			GameManager.Instance.FinishGame(AttackerUnit.UnitArmy);
 			return;
 		}
 

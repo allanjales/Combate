@@ -27,15 +27,15 @@ public class HUDGameStateManager : MonoBehaviour
 	private void SetColors()
 	{
 		foreach (GameObject GameStateTurnInfo in _ListGameStateOwnTurnInfo)
-			GameStateTurnInfo.GetComponent<Image>().color = (GameManager.Instance.PlayerSide == 0) ? HUDManager.Instance.RedArmyColor : HUDManager.Instance.BlueArmyColor;
+			GameStateTurnInfo.GetComponent<Image>().color = (GameManager.Instance.playerArmy == 0) ? HUDManager.Instance.RedArmyColor : HUDManager.Instance.BlueArmyColor;
 
 		foreach (GameObject GameStateTurnInfo in _ListGameStateEnemyTurnInfo)
-			GameStateTurnInfo.GetComponent<Image>().color = (GameManager.Instance.PlayerSide == 0) ? HUDManager.Instance.BlueArmyColor : HUDManager.Instance.RedArmyColor;
+			GameStateTurnInfo.GetComponent<Image>().color = (GameManager.Instance.playerArmy == 0) ? HUDManager.Instance.BlueArmyColor : HUDManager.Instance.RedArmyColor;
 	}
 
 	private List<GameObject> GetListGameStateTurnInfoByArmy(int army)
 	{
-		return (GameManager.Instance.PlayerSide == army) ? _ListGameStateOwnTurnInfo : _ListGameStateEnemyTurnInfo;
+		return (GameManager.Instance.playerArmy == army) ? _ListGameStateOwnTurnInfo : _ListGameStateEnemyTurnInfo;
 	}
 
 	public void UpdateTurnInfo()
