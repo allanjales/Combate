@@ -7,6 +7,10 @@ public class Unit : MonoBehaviour
 	[SerializeField] private Sprite[] _sprites_vermelhas;
 	[SerializeField] private Sprite[] _sprites_azuis;
 
+	private Vector3 Velocity = Vector3.zero;
+	private Vector2 TargetPosition;
+	private float moveTime = 0.05f;
+
 	public int UnitNumber { get; private set; } = -1;
 	public int UnitArmy { get; private set; } = -1;
 	public string UnitName { get; private set; } = null;
@@ -31,7 +35,17 @@ public class Unit : MonoBehaviour
 		UpdateSpriteRenderer();
 	}
 
-	public void UpdateSpriteRenderer()
+	public void MoveTo(Vector2 NewPos)
+	{
+		TargetPosition = NewPos;
+	}
+
+    private void Update()
+	{
+		transform.position = Vector3.SmoothDamp(transform.position, TargetPosition, ref Velocity, moveTime);
+	}
+
+    public void UpdateSpriteRenderer()
 	{
 
 		_spriteRenderer = GetComponent<SpriteRenderer>();
@@ -47,7 +61,7 @@ public class Unit : MonoBehaviour
 	public void DeleteItself()
     {
 		OccupiedTile.OccupiedUnit = null;
-		if (UnitManager.Instance.SelectedUnit == this) UnitManager.Instance.SelectedUnit = null;
+		if (UnitManager.Instance.SelectedUnit == this) UnitManager.Instance.SetSelectedUnit(null);
 		Destroy(gameObject);
     }
 
@@ -57,4 +71,12 @@ public class Unit : MonoBehaviour
 			return $"{UnitNumber}";
 		return "-";
 	}
+
+	public bool IsMyUnit()
+    {
+		if (GameManager.Instance.playerArmy == UnitArmy)
+			return true;
+
+		return false;
+    }
 }

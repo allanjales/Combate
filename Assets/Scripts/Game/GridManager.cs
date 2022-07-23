@@ -70,9 +70,18 @@ public class GridManager : MonoBehaviourPunCallbacks
 	public void HightLightTileUpdateEveryTile()
 	{
 		foreach (var tile in _tiles)
-		{
 			tile.Value.HightLightTileUpdate();
+	}
+
+	public bool CanSelectedUnitAttackAnyTile()
+	{
+		foreach (var tile in _tiles)
+		{
+			if (tile.Value.CanSelectedUnitAttackThisTile() == true)
+				return true;
 		}
+
+		return false;
 	}
 
 	[PunRPC]
@@ -82,10 +91,10 @@ public class GridManager : MonoBehaviourPunCallbacks
 	}
 
 	[PunRPC]
-	public void SwapUnitsBetweenTiles(Vector2 pos1, Vector2 pos2)
+	public void SwapUnitsBetweenTiles(int sender, Vector2 pos1, Vector2 pos2)
 	{
-		Tile tile1 = GetTileAtPosition(new Vector2(9, 9) - pos1);
-		Tile tile2 = GetTileAtPosition(new Vector2(9, 9) - pos2);
+		Tile tile1 = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? pos1 : (new Vector2(9, 9) - pos1));
+		Tile tile2 = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? pos2 : (new Vector2(9, 9) - pos2));
 
 		if (tile1.OccupiedUnit == null || tile2.OccupiedUnit == null)
 			return;
@@ -94,8 +103,8 @@ public class GridManager : MonoBehaviourPunCallbacks
 		tile1.OccupiedUnit = tile2.OccupiedUnit;
 		tile2.OccupiedUnit = temp;
 
-		tile1.OccupiedUnit.transform.position = tile1.transform.position;
-		tile2.OccupiedUnit.transform.position = tile2.transform.position;
+		tile1.OccupiedUnit.MoveTo(tile1.transform.position);
+		tile2.OccupiedUnit.MoveTo(tile2.transform.position);
 
 		tile1.OccupiedUnit.OccupiedTile = tile1;
 		tile2.OccupiedUnit.OccupiedTile = tile2;
@@ -106,6 +115,8 @@ public class GridManager : MonoBehaviourPunCallbacks
 	{
 		Unit AttackerUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? AttackerPos : (new Vector2(9, 9) - AttackerPos)).OccupiedUnit;
 		Unit TargetUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? TargetPos : (new Vector2(9, 9) - TargetPos)).OccupiedUnit;
+
+		HUDManager.Instance.ShowAttackedUnitInfo(TargetUnit);
 
 		if (TargetUnit.UnitNumber == 12)
 		{
@@ -135,5 +146,10 @@ public class GridManager : MonoBehaviourPunCallbacks
 		}
 
 		((AttackerUnit.UnitNumber > TargetUnit.UnitNumber) ? TargetUnit : AttackerUnit).DeleteItself();
+	}
+
+	public Vector2 GetPosInMyTable(int senderArmy, Vector2 pos)
+    {
+		return (GameManager.Instance.playerArmy == senderArmy) ? pos : (new Vector2(9, 9) - pos);
 	}
 }

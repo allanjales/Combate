@@ -17,6 +17,6 @@ public class GameSettings : MonoBehaviour
 		Instance = this;
 		DontDestroyOnLoad(gameObject);
 
-		Application.targetFrameRate = 60;
+		Application.targetFrameRate = Screen.currentResolution.refreshRate;
 	}
 }

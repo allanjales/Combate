@@ -35,13 +35,13 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 	[PunRPC]
 	private void SetPlayerArmy(int exercito)
-    {
+	{
 		playerArmy = exercito;
 		_table.transform.Rotate(0f, 0f, (float)playerArmy * 180f, Space.World);
 		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.GenerateGrid, false);
 	}
 
-    [PunRPC]
+	[PunRPC]
 	public void ChangeState(GameState newState, bool doNotWaitOthersToBeReady = false)
 	{
 		_readyToChangeState++;
@@ -69,7 +69,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 		HUDGameStateManager.Instance.UpdateTurnInfo();
 		GridManager.Instance.HightLightTileUpdateEveryTile();
+		HUDManager.Instance.UpdateButtonShow();
 	}
+
+	[PunRPC]
+	public void CancelReadyForChangeState()
+    {
+		_readyToChangeState--;
+    }
 
 	public bool IsMyMoveTurn()
 	{
@@ -80,7 +87,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 	public bool IsMyAttackTurn()
 	{
 		return (GameManager.Instance.GameState == GameState.RedAttack && (GameManager.Instance.playerArmy == 0))
-			|| GameManager.Instance.GameState == GameState.BlueAttack && (GameManager.Instance.playerArmy == 1);
+			|| (GameManager.Instance.GameState == GameState.BlueAttack && (GameManager.Instance.playerArmy == 1));
 	}
 
 	void Update()
@@ -98,6 +105,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 			GodEye = GodEye ? false : true;
 		}
 	}
+
 	public int GetPlayerTurn()
 	{
 		switch (GameManager.Instance.GameState)
@@ -116,7 +124,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 	}
 
 	public void NextTurn()
-    {
+	{
 		List<GameState> SwitchGameStates = new List<GameState> { GameState.RedMove, GameState.RedAttack, GameState.BlueMove, GameState.BlueAttack };
 		int index = SwitchGameStates.IndexOf(GameManager.Instance.GameState);
 
@@ -126,8 +134,18 @@ public class GameManager : MonoBehaviourPunCallbacks
 	}
 
 	public void FinishGame(int winner)
-    {
+	{
 		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.Finish, true);
+	}
+
+	public bool IsMyArmy(int army)
+	{
+		return GameManager.Instance.playerArmy == army;
+	}
+
+	public bool IsGameFinished()
+    {
+		return GameManager.Instance.GameState == GameState.Finish;
 	}
 }
 

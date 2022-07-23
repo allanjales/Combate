@@ -44,24 +44,9 @@ public class Tile : MonoBehaviour
 	public void SetUnit(Unit unit)
 	{
 		if (unit.OccupiedTile != null) unit.OccupiedTile.OccupiedUnit = null;
-		unit.transform.position = transform.position;
+		unit.MoveTo(transform.position);
 		OccupiedUnit = unit;
 		unit.OccupiedTile = this;
-	}
-	public void SwapUnits(Tile tile1)
-	{
-		if (tile1.OccupiedUnit == null || OccupiedUnit == null)
-			return;
-
-		Unit temp = tile1.OccupiedUnit;
-		tile1.OccupiedUnit = OccupiedUnit;
-		OccupiedUnit = temp;
-
-		tile1.OccupiedUnit.transform.position = tile1.transform.position;
-		OccupiedUnit.transform.position = transform.position;
-
-		tile1.OccupiedUnit.OccupiedTile = tile1;
-		OccupiedUnit.OccupiedTile = this;
 	}
 
 	public void HightLightTileUpdate()
@@ -85,7 +70,7 @@ public class Tile : MonoBehaviour
 			return;
 		}
 
-		if (CanSelectedUnitMoveToThisTile())
+		if (CanSelectedUnitMoveToThisTile() && !GameManager.Instance.IsMyAttackTurn())
 		{
 			_Highlight.GetComponent<SpriteRenderer>().color = _WalkableHighlightColor;
 			_Highlight.SetActive(true);
@@ -117,25 +102,25 @@ public class Tile : MonoBehaviour
 			return false;
 
 		//Can't move due direction is not allowed
-		if (UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position.x != this.transform.position.x
-			&& UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position.y != this.transform.position.y)
+		if (UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position.x != transform.position.x
+			&& UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position.y != transform.position.y)
 			return false;
 
 		//If is not a Soldier and it is 1 tile away
 		if (UnitManager.Instance.SelectedUnit.UnitNumber != 2
-			&& Vector3.Distance(this.transform.position, UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position) > 1)
+			&& Vector3.Distance(transform.position, UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position) > 1)
 			return false;
 
 		//If there is a player on the way for soldiers
 		if (UnitManager.Instance.SelectedUnit.UnitNumber == 2)
 		{
-			float UnitDistance = Vector2.Distance(this.transform.position, UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position);
-			Vector2 UnitDirection = (UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - this.transform.position);
+			float UnitDistance = Vector2.Distance(transform.position, UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position);
+			Vector2 UnitDirection = (UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - transform.position);
 			UnitDirection.Normalize();
 
 			for (_i = 1; _i < UnitDistance; _i++)
 			{
-				_iTile = GridManager.Instance.GetTileAtPosition((Vector2)this.transform.position - new Vector2(0.5f, 0.5f) + _i * UnitDirection);
+				_iTile = GridManager.Instance.GetTileAtPosition((Vector2)transform.position - new Vector2(0.5f, 0.5f) + _i * UnitDirection);
 
 				//If there is no tile on the way
 				if (_iTile == null)
@@ -149,7 +134,7 @@ public class Tile : MonoBehaviour
 
 		return true;
 	}
-	private bool CanSelectedUnitAttackThisTile()
+	public bool CanSelectedUnitAttackThisTile()
 	{
 		//No attacker selected
 		if (UnitManager.Instance.SelectedUnit == null)
@@ -168,12 +153,12 @@ public class Tile : MonoBehaviour
 			return false;
 
 		//Can't attack due direction is not allowed
-		if (UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position.x != this.transform.position.x
-			&& UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position.y != this.transform.position.y)
+		if (UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position.x != transform.position.x
+			&& UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position.y != transform.position.y)
 			return false;
 
 		//If is 1 tile away
-		if (Vector3.Distance(this.transform.position, UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position) > 1)
+		if (Vector3.Distance(transform.position, UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position) > 1)
 			return false;
 
 		return true;
@@ -207,7 +192,7 @@ public class Tile : MonoBehaviour
 		if (CanSelectedUnitAttackThisTile())
 		{
 			GridManager.Instance.photonView.RPC("AttackTile", RpcTarget.AllBuffered, GameManager.Instance.playerArmy,
-				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)this.transform.position - new Vector2(0.5f, 0.5f));
+				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)transform.position - new Vector2(0.5f, 0.5f));
 			UnitManager.Instance.SetSelectedUnit(null);
 			GameManager.Instance.NextTurn();
 			return;
@@ -220,12 +205,29 @@ public class Tile : MonoBehaviour
 		//Move
 		if (OccupiedUnit == null && UnitManager.Instance.SelectedUnit != null)
 		{
+			Vector2 OldPos = UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position;
+
 			GridManager.Instance.photonView.RPC("MoveFromTileToTile", RpcTarget.OthersBuffered,
-				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)this.transform.position - new Vector2(0.5f, 0.5f));
+				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)transform.position - new Vector2(0.5f, 0.5f));
 			SetUnit(UnitManager.Instance.SelectedUnit);
-			UnitManager.Instance.SetSelectedUnit(null);
 			GameManager.Instance.NextTurn();
-			return;
+
+			//If is a soldier and moved more than 1 tile
+			if (UnitManager.Instance.SelectedUnit.UnitNumber == 2 &&
+				Vector2.Distance(transform.position, OldPos) > 1)
+			{
+				GameManager.Instance.NextTurn();
+				UnitManager.Instance.SetSelectedUnit(null);
+				return;
+			}
+
+			//If can't attack anything
+			if (!GridManager.Instance.CanSelectedUnitAttackAnyTile())
+			{
+				GameManager.Instance.NextTurn();
+				UnitManager.Instance.SetSelectedUnit(null);
+				return;
+			}
 		}
 	}
 
@@ -250,23 +252,36 @@ public class Tile : MonoBehaviour
 			return;
 
 		//Swap
-		GridManager.Instance.photonView.RPC("SwapUnitsBetweenTiles", RpcTarget.OthersBuffered,
-			(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)this.transform.position - new Vector2(0.5f, 0.5f));
-		SwapUnits(UnitManager.Instance.SelectedUnit.OccupiedTile);
+		GridManager.Instance.photonView.RPC("SwapUnitsBetweenTiles", RpcTarget.AllBuffered, GameManager.Instance.playerArmy,
+			(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)transform.position - new Vector2(0.5f, 0.5f));
 		UnitManager.Instance.SetSelectedUnit(null);
 	}
 
 	private void AttackOnMouseDown()
-    {
+	{
+		//If there is no unit selected, ignore it
+		if (UnitManager.Instance.SelectedUnit == null)
+			return;
 
-    }
+		//Attack
+		if (CanSelectedUnitAttackThisTile())
+		{
+			GridManager.Instance.photonView.RPC("AttackTile", RpcTarget.AllBuffered, GameManager.Instance.playerArmy,
+				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)transform.position - new Vector2(0.5f, 0.5f));
+			GameManager.Instance.NextTurn();
+			UnitManager.Instance.SetSelectedUnit(null);
+		}
+	}
 
 	private void OnMouseDown()
 	{
-		if (GameManager.Instance.GameState == GameState.PositionateUnits)
-			SwapOrSelectUnitsOnMouseDown();
-		else
+		if (GameManager.Instance.IsMyMoveTurn())
 			SelectOrMoveUnitOnMouseDown();
+		else if (GameManager.Instance.IsMyAttackTurn())
+			AttackOnMouseDown();
+		else if (GameManager.Instance.GameState == GameState.PositionateUnits)
+			SwapOrSelectUnitsOnMouseDown();
+
 		GridManager.Instance.HightLightTileUpdateEveryTile();
 	}
 }
