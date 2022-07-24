@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
-using System.Linq;
 using Photon.Pun;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
@@ -14,8 +13,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 	public int playerArmy;
 	private int _readyToChangeState;
-
-	public bool GodEye = false;
+	public bool positionateUnitsDoneState { get; private set; } = false;
 
 	private void Awake()
 	{
@@ -27,16 +25,16 @@ public class GameManager : MonoBehaviourPunCallbacks
 	{
 		if (PhotonNetwork.IsMasterClient)
 		{
-			SetPlayerArmy(UnityEngine.Random.Range(0, 2));
+			SetPlayerArmy(Random.Range(0, 2));
 			if (PhotonNetwork.PlayerList.Length > 1)
 				photonView.RPC("SetPlayerArmy", PhotonNetwork.PlayerList[1], (playerArmy == 0) ? 1 : 0);
 		}
 	}
 
 	[PunRPC]
-	private void SetPlayerArmy(int exercito)
+	private void SetPlayerArmy(int army)
 	{
-		playerArmy = exercito;
+		playerArmy = army;
 		_table.transform.Rotate(0f, 0f, (float)playerArmy * 180f, Space.World);
 		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.GenerateGrid, false);
 	}
@@ -45,6 +43,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 	public void ChangeState(GameState newState, bool doNotWaitOthersToBeReady = false)
 	{
 		_readyToChangeState++;
+		HUDManager.Instance.UpdatePositionatingDoneInfo();
 		if (!doNotWaitOthersToBeReady && _readyToChangeState < PhotonNetwork.PlayerList.Length)
 			return;
 		_readyToChangeState = 0;
@@ -67,16 +66,18 @@ public class GameManager : MonoBehaviourPunCallbacks
 				break;
 		}
 
-		HUDGameStateManager.Instance.UpdateTurnInfo();
 		GridManager.Instance.HightLightTileUpdateEveryTile();
-		HUDManager.Instance.UpdateButtonShow();
+		HUDManager.Instance.UpdateTurnInfo();
+		HUDManager.Instance.UpdateButtonsShow();
+		positionateUnitsDoneState = false;
 	}
 
 	[PunRPC]
 	public void CancelReadyForChangeState()
-    {
+	{
 		_readyToChangeState--;
-    }
+		HUDManager.Instance.UpdatePositionatingDoneInfo();
+	}
 
 	public bool IsMyMoveTurn()
 	{
@@ -88,22 +89,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 	{
 		return (GameManager.Instance.GameState == GameState.RedAttack && (GameManager.Instance.playerArmy == 0))
 			|| (GameManager.Instance.GameState == GameState.BlueAttack && (GameManager.Instance.playerArmy == 1));
-	}
-
-	void Update()
-	{
-		if (Input.GetKeyDown("n"))
-		{
-			if ((int)GameManager.Instance.GameState < 2)
-				return;
-
-			NextTurn();
-		}
-
-		if (Input.GetKeyDown("e"))
-		{
-			GodEye = GodEye ? false : true;
-		}
 	}
 
 	public int GetPlayerTurn()
@@ -140,13 +125,44 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 	public bool IsMyArmy(int army)
 	{
-		return GameManager.Instance.playerArmy == army;
+		return playerArmy == army;
 	}
 
 	public bool IsGameFinished()
-    {
-		return GameManager.Instance.GameState == GameState.Finish;
+	{
+		return GameState == GameState.Finish;
 	}
+
+	public void DonePositioning()
+	{
+		positionateUnitsDoneState = !positionateUnitsDoneState;
+
+		if (positionateUnitsDoneState)
+			photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.RedMove, false);
+		else
+			photonView.RPC("CancelReadyForChangeState", RpcTarget.AllBuffered);
+		HUDManager.Instance.UpdateBtnDonePositioningAppearence();
+	}
+
+	public void DoneAttack()
+	{
+		NextTurn();
+	}
+
+	public void ExitGame()
+	{
+		GestorDeRede.Instancia.SairDoLobby();
+		Destroy(GestorDeRede.Instancia.gameObject);
+		SceneManager.LoadScene("Menu");
+	}
+
+	public bool IsOtherPlayerDonePositioningUnits()
+    {
+		if (_readyToChangeState >= 1 + (positionateUnitsDoneState ? 1 : 0))
+			return true;
+		return false;
+    }
+
 }
 
 public enum GameState

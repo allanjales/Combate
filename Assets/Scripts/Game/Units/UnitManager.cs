@@ -89,4 +89,9 @@ public class UnitManager : MonoBehaviourPunCallbacks
         foreach (Unit unit in _UnitList)
 			unit.UpdateSpriteRenderer();
     }
+
+	public void RemoveUnitFromUnitList(Unit Unit)
+    {
+		_UnitList.Remove(Unit);
+    }
 }

@@ -73,6 +73,12 @@ public class GridManager : MonoBehaviourPunCallbacks
 			tile.Value.HightLightTileUpdate();
 	}
 
+	public void DisableEveryLastMoveHighlight()
+	{
+		foreach (var tile in _tiles)
+			tile.Value.DisableLastMoveHighlight();
+	}
+
 	public bool CanSelectedUnitAttackAnyTile()
 	{
 		foreach (var tile in _tiles)
@@ -87,7 +93,11 @@ public class GridManager : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void MoveFromTileToTile(Vector2 From, Vector2 To)
 	{
-		GetTileAtPosition(new Vector2(9, 9) - To).SetUnit(GetTileAtPosition(new Vector2(9, 9) - From).OccupiedUnit);
+		Tile TileFrom = GetTileAtPosition(new Vector2(9, 9) - From);
+		Tile TileTo = GetTileAtPosition(new Vector2(9, 9) - To);
+		TileTo.SetUnit(TileFrom.OccupiedUnit);
+		TileFrom.HighlightLastMove(0);
+		TileTo.HighlightLastMove(0);
 	}
 
 	[PunRPC]
@@ -110,13 +120,53 @@ public class GridManager : MonoBehaviourPunCallbacks
 		tile2.OccupiedUnit.OccupiedTile = tile2;
 	}
 
+	public Dictionary<Unit, bool> WhoSurvivesOnAttack(Unit AttackerUnit, Unit TargetUnit)
+	{
+		Dictionary<Unit, bool> Survivors = new();
+		Survivors[AttackerUnit] = true;
+		Survivors[TargetUnit] = true;
+
+		if (TargetUnit.UnitNumber == 12)
+		{
+			Survivors[TargetUnit] = false;
+			return Survivors;
+		}
+
+		if (TargetUnit.UnitNumber == 11)
+		{
+			Survivors[TargetUnit] = false;
+			if (AttackerUnit.UnitNumber != 3)
+				Survivors[AttackerUnit] = false;
+			return Survivors;
+		}
+
+		if (AttackerUnit.UnitNumber == 1 && TargetUnit.UnitNumber == 10)
+		{
+			Survivors[TargetUnit] = false;
+			return Survivors;
+		}
+
+		if (AttackerUnit.UnitNumber == TargetUnit.UnitNumber)
+		{
+			Survivors[AttackerUnit] = false;
+			Survivors[TargetUnit] = false;
+			return Survivors;
+		}
+
+		Survivors[(AttackerUnit.UnitNumber > TargetUnit.UnitNumber) ? TargetUnit : AttackerUnit] = false;
+		return Survivors;
+	}
+
 	[PunRPC]
 	public void AttackTile(int sender, Vector2 AttackerPos, Vector2 TargetPos)
 	{
 		Unit AttackerUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? AttackerPos : (new Vector2(9, 9) - AttackerPos)).OccupiedUnit;
 		Unit TargetUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? TargetPos : (new Vector2(9, 9) - TargetPos)).OccupiedUnit;
 
-		HUDManager.Instance.ShowAttackedUnitInfo((GameManager.Instance.IsMyArmy(TargetUnit.UnitArmy)) ? AttackerUnit : TargetUnit);
+		HUDManager.Instance.ShowUnitInfoOnAttack(AttackerUnit, TargetUnit);
+
+		AttackerUnit.OccupiedTile.HighlightLastMove(1);
+		TargetUnit.OccupiedTile.HighlightLastMove(2);
 
 		if (TargetUnit.UnitNumber == 12)
 		{
@@ -124,32 +174,13 @@ public class GridManager : MonoBehaviourPunCallbacks
 			return;
 		}
 
-		if (TargetUnit.UnitNumber == 11)
-		{
-			TargetUnit.DeleteItself();
-			if (AttackerUnit.UnitNumber != 3)
-				AttackerUnit.DeleteItself();
-			return;
-		}
-
-		if (AttackerUnit.UnitNumber == 1 && TargetUnit.UnitNumber == 10)
-        {
-			TargetUnit.DeleteItself();
-			return;
-        }
-
-		if (AttackerUnit.UnitNumber == TargetUnit.UnitNumber)
-		{
-			AttackerUnit.DeleteItself();
-			TargetUnit.DeleteItself();
-			return;
-		}
-
-		((AttackerUnit.UnitNumber > TargetUnit.UnitNumber) ? TargetUnit : AttackerUnit).DeleteItself();
+		Dictionary<Unit, bool> Survivors = WhoSurvivesOnAttack(AttackerUnit, TargetUnit);
+		if (Survivors[AttackerUnit] == false) AttackerUnit.DeleteItself();
+		if (Survivors[TargetUnit] == false) TargetUnit.DeleteItself();
 	}
 
 	public Vector2 GetPosInMyTable(int senderArmy, Vector2 pos)
-    {
+	{
 		return (GameManager.Instance.playerArmy == senderArmy) ? pos : (new Vector2(9, 9) - pos);
 	}
 }

@@ -5,11 +5,25 @@ using Photon.Pun;
 
 public class Tile : MonoBehaviour
 {
-	[SerializeField] private GameObject _HighlightHover, _Highlight;
-	[SerializeField] private Color _SelectedHighlightColor, _WalkableHighlightColor, _AttackableHightlightColor, _SwapHighlightColor;
+	[Header("Buttons link")]
+	[SerializeField] private GameObject _HighlightHover;
+	[SerializeField] private GameObject _HighlightPossibilities;
+	[SerializeField] private GameObject _HighlightLastMove;
+
+	[Header("Highlight colors")]
+	[SerializeField] private Color _SelectedHighlightColor;
+	[SerializeField] private Color _WalkableHighlightColor;
+	[SerializeField] private Color _AttackableHightlightColor;
+	[SerializeField] private Color _SwapHighlightColor;
+	[SerializeField] private Color _LastMoveHighlightColor ;
+	[SerializeField] private Color _LastAttackerHighlightColor ;
+	[SerializeField] private Color _LastTargetHighlightColor ;
 
 	private Color _OriginalHighlightHoverColor;
 	public Unit OccupiedUnit;
+
+	private readonly float _showTimeLastMoveHighlight = 5f;
+	private float _ShowingSinceLastMoveHighlight = -1f;
 
 	public bool Walkable => OccupiedUnit == null;
 
@@ -23,6 +37,49 @@ public class Tile : MonoBehaviour
 		this.GetComponent<SpriteRenderer>().sortingOrder = 1;
 	}
 
+	private void Update()
+	{
+		ShowHighlightLastMove();
+	}
+
+	private void ShowHighlightLastMove()
+	{
+		if (_ShowingSinceLastMoveHighlight == -1f)
+			return;
+
+		if (Time.time - _ShowingSinceLastMoveHighlight > _showTimeLastMoveHighlight)
+		{
+			_ShowingSinceLastMoveHighlight = -1f;
+			_HighlightLastMove.SetActive(false);
+		}
+	}
+
+	public void DisableLastMoveHighlight()
+	{
+		_ShowingSinceLastMoveHighlight = -1f;
+		_HighlightLastMove.SetActive(false);
+	}
+
+	public void HighlightLastMove(int moveType)
+	{
+		_ShowingSinceLastMoveHighlight = Time.time;
+		_HighlightLastMove.SetActive(true);
+		switch (moveType)
+		{
+			case 0:
+				_HighlightLastMove.GetComponent<SpriteRenderer>().color = _LastMoveHighlightColor;
+				break;
+			case 1:
+				_HighlightLastMove.GetComponent<SpriteRenderer>().color = _LastAttackerHighlightColor;
+				break;
+			case 2:
+				_HighlightLastMove.GetComponent<SpriteRenderer>().color = _LastTargetHighlightColor;
+				break;
+			default:
+				break;
+		}
+	}
+
 	void OnMouseEnter()
 	{
 		//Change highlight hover color
@@ -33,6 +90,12 @@ public class Tile : MonoBehaviour
 
 		_HighlightHover.SetActive(true);
 		HUDManager.Instance.ShowTileUnit(this);
+	}
+
+	private void OnMouseOver()
+	{
+		if (Input.GetKey(KeyCode.Delete))
+			GodMode.Instance.TryToDeleteUnit(OccupiedUnit);
 	}
 
 	void OnMouseExit()
@@ -56,35 +119,35 @@ public class Tile : MonoBehaviour
 		{
 			//If it is in positionate turn
 			if (GameManager.Instance.GameState == GameState.PositionateUnits)
-				_Highlight.GetComponent<SpriteRenderer>().color = _SwapHighlightColor;
+				_HighlightPossibilities.GetComponent<SpriteRenderer>().color = _SwapHighlightColor;
 			else
-				_Highlight.GetComponent<SpriteRenderer>().color = _SelectedHighlightColor;
-			_Highlight.SetActive(true);
+				_HighlightPossibilities.GetComponent<SpriteRenderer>().color = _SelectedHighlightColor;
+			_HighlightPossibilities.SetActive(true);
 			return;
 		}
 
 		//If is in positionate turn, ignore it
 		if (GameManager.Instance.GameState == GameState.PositionateUnits)
 		{
-			_Highlight.SetActive(false);
+			_HighlightPossibilities.SetActive(false);
 			return;
 		}
 
 		if (CanSelectedUnitMoveToThisTile() && !GameManager.Instance.IsMyAttackTurn())
 		{
-			_Highlight.GetComponent<SpriteRenderer>().color = _WalkableHighlightColor;
-			_Highlight.SetActive(true);
+			_HighlightPossibilities.GetComponent<SpriteRenderer>().color = _WalkableHighlightColor;
+			_HighlightPossibilities.SetActive(true);
 			return;
 		}
 
 		if (CanSelectedUnitAttackThisTile())
 		{
-			_Highlight.GetComponent<SpriteRenderer>().color = _AttackableHightlightColor;
-			_Highlight.SetActive(true);
+			_HighlightPossibilities.GetComponent<SpriteRenderer>().color = _AttackableHightlightColor;
+			_HighlightPossibilities.SetActive(true);
 			return;
 		}
 
-		_Highlight.SetActive(false);
+		_HighlightPossibilities.SetActive(false);
 	}
 
 	private bool CanSelectedUnitMoveToThisTile()
@@ -195,6 +258,7 @@ public class Tile : MonoBehaviour
 				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)transform.position - new Vector2(0.5f, 0.5f));
 			UnitManager.Instance.SetSelectedUnit(null);
 			GameManager.Instance.NextTurn();
+			GameManager.Instance.NextTurn();
 			return;
 		}
 
@@ -206,7 +270,8 @@ public class Tile : MonoBehaviour
 		if (OccupiedUnit == null && UnitManager.Instance.SelectedUnit != null)
 		{
 			Vector2 OldPos = UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position;
-
+			UnitManager.Instance.SelectedUnit.OccupiedTile.HighlightLastMove(0);
+			HighlightLastMove(0);
 			GridManager.Instance.photonView.RPC("MoveFromTileToTile", RpcTarget.OthersBuffered,
 				(Vector2)UnitManager.Instance.SelectedUnit.OccupiedTile.transform.position - new Vector2(0.5f, 0.5f), (Vector2)transform.position - new Vector2(0.5f, 0.5f));
 			SetUnit(UnitManager.Instance.SelectedUnit);
@@ -275,12 +340,12 @@ public class Tile : MonoBehaviour
 
 	private void OnMouseDown()
 	{
-		if (GameManager.Instance.IsMyMoveTurn())
-			SelectOrMoveUnitOnMouseDown();
-		else if (GameManager.Instance.IsMyAttackTurn())
+		if (GameManager.Instance.IsMyAttackTurn())
 			AttackOnMouseDown();
 		else if (GameManager.Instance.GameState == GameState.PositionateUnits)
 			SwapOrSelectUnitsOnMouseDown();
+		else
+			SelectOrMoveUnitOnMouseDown();
 
 		GridManager.Instance.HightLightTileUpdateEveryTile();
 	}

@@ -40,16 +40,16 @@ public class Unit : MonoBehaviour
 		TargetPosition = NewPos;
 	}
 
-    private void Update()
+	private void Update()
 	{
 		transform.position = Vector3.SmoothDamp(transform.position, TargetPosition, ref Velocity, moveTime);
 	}
 
-    public void UpdateSpriteRenderer()
+	public void UpdateSpriteRenderer()
 	{
 
 		_spriteRenderer = GetComponent<SpriteRenderer>();
-		if (GameManager.Instance.playerArmy == UnitArmy || GameManager.Instance.GameState == GameState.Finish)
+		if (GameManager.Instance.playerArmy == UnitArmy || GameManager.Instance.GameState == GameState.Finish || GodMode.Instance.CanSeeEnemyUnits())
 		{
 			_spriteRenderer.sprite = (this.UnitArmy == 0) ? _sprites_vermelhas[this.UnitNumber] : _sprites_azuis[this.UnitNumber];
 			return;
@@ -59,24 +59,29 @@ public class Unit : MonoBehaviour
 	}
 
 	public void DeleteItself()
-    {
+	{
 		OccupiedTile.OccupiedUnit = null;
 		if (UnitManager.Instance.SelectedUnit == this) UnitManager.Instance.SetSelectedUnit(null);
+		UnitManager.Instance.RemoveUnitFromUnitList(this);
 		Destroy(gameObject);
-    }
+	}
 
 	public string GetUnitNumberString()
 	{
 		if (UnitNumber > 0 && UnitNumber < 11)
 			return $"{UnitNumber}";
+
+		if (UnitNumber == 12)
+			return "!";
+
 		return "-";
 	}
 
 	public bool IsMyUnit()
-    {
+	{
 		if (GameManager.Instance.playerArmy == UnitArmy)
 			return true;
 
 		return false;
-    }
+	}
 }

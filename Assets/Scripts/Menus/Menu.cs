@@ -28,6 +28,7 @@ public class Menu : MonoBehaviourPunCallbacks
 	{
 		MudaMenu(_menuLobby.gameObject);
 		_menuLobby.photonView.RPC("AtualizaLista", RpcTarget.All);
+		_menuLobby.UpdateRoomName();
 	}
 
 	public void MudaMenu(GameObject menu)

@@ -1,7 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
+using UnityEngine;
 
 public class GestorDeRede : MonoBehaviourPunCallbacks
 {
@@ -29,14 +28,14 @@ public class GestorDeRede : MonoBehaviourPunCallbacks
 		Debug.Log("Conexão bem sucedida.");
 	}
 
-	public void CriaSala(string nomeSala)
+	public bool CriaSala(string nomeSala)
 	{
-		PhotonNetwork.CreateRoom(nomeSala);
+		return PhotonNetwork.CreateRoom(nomeSala, new RoomOptions() { MaxPlayers = 2 }, null);
 	}
 
-	public void EntraSala(string nomeSala)
+	public bool EntraSala(string nomeSala)
 	{
-		PhotonNetwork.JoinRoom(nomeSala);
+		return PhotonNetwork.JoinRoom(nomeSala);
 	}
 
 	public void MudaNick(string nickname)
@@ -67,6 +66,7 @@ public class GestorDeRede : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void ComecaJogo(string nomeCena)
 	{
-		PhotonNetwork.LoadLevel(nomeCena);
+		if (PhotonNetwork.PlayerList.Length == PhotonNetwork.CurrentRoom.MaxPlayers)
+			PhotonNetwork.LoadLevel(nomeCena);
 	}
 }
