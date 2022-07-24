@@ -192,7 +192,7 @@ MonoBehaviour:
   _WalkableHighlightColor: {r: 0, g: 1, b: 0, a: 0.5882353}
   _AttackableHightlightColor: {r: 1, g: 0, b: 0, a: 0.5882353}
   _SwapHighlightColor: {r: 0, g: 1, b: 1, a: 0.5882353}
-  _LastMoveHighlightColor: {r: 0, g: 1, b: 0, a: 0.27450982}
+  _LastMoveHighlightColor: {r: 0, g: 1, b: 0, a: 0}
   _LastAttackerHighlightColor: {r: 1, g: 0, b: 0, a: 0.27450982}
   _LastTargetHighlightColor: {r: 1, g: 0, b: 0, a: 0.27450982}
   OccupiedUnit: {fileID: 0}

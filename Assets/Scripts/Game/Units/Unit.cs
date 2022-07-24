@@ -1,15 +1,14 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
-	[SerializeField] private Sprite[] _sprites_vermelhas;
-	[SerializeField] private Sprite[] _sprites_azuis;
+	[SerializeField] private List<Sprite> _sprites_vermelhas = new(13);
+	[SerializeField] private List<Sprite> _sprites_azuis = new(13);
 
 	private Vector3 Velocity = Vector3.zero;
 	private Vector2 TargetPosition;
-	private float moveTime = 0.05f;
+	private readonly float moveTime = 0.05f;
 
 	public int UnitNumber { get; private set; } = -1;
 	public int UnitArmy { get; private set; } = -1;
@@ -63,6 +62,7 @@ public class Unit : MonoBehaviour
 		OccupiedTile.OccupiedUnit = null;
 		if (UnitManager.Instance.SelectedUnit == this) UnitManager.Instance.SetSelectedUnit(null);
 		UnitManager.Instance.RemoveUnitFromUnitList(this);
+		GameManager.Instance.CheckIfThereIsAWinner();
 		Destroy(gameObject);
 	}
 
@@ -81,6 +81,15 @@ public class Unit : MonoBehaviour
 	{
 		if (GameManager.Instance.playerArmy == UnitArmy)
 			return true;
+
+		return false;
+	}
+
+	public bool CanItMove()
+	{
+		foreach (Tile tile in GridManager.Instance._tiles.Values)
+			if (tile.CanUnitMoveToThisTile(this) || tile.CanUnitAttackThisTile(this))
+				return true;
 
 		return false;
 	}

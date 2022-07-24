@@ -1,9 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System;
-using System.Linq;
 using Photon.Pun;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 public class GridManager : MonoBehaviourPunCallbacks
 {
@@ -11,7 +9,8 @@ public class GridManager : MonoBehaviourPunCallbacks
 
 	[SerializeField] private Tile _tilePrefab;
 
-	public Dictionary<Vector2, Tile> _tiles;
+	public Dictionary<Vector2, Tile> _tiles = new(92);
+	public Dictionary<Tile, int> lastMoveTiles = new(2);
 
 	private void Awake()
 	{
@@ -28,7 +27,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 				if ((x == 2 || x == 3 || x == 6 || x == 7) && (y == 4 || y == 5))
 					continue;
 
-				this.SpawnTile(x, y);
+				SpawnTile(x, y);
 			}
 		}
 	}
@@ -37,7 +36,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 	{
 		Tile spawnedTile = Instantiate(_tilePrefab, new Vector3(x + .5f, y + .5f), Quaternion.identity);
 		spawnedTile.name = $"Tile {x} {y}";
-		spawnedTile.transform.SetParent(this.transform);
+		spawnedTile.transform.SetParent(transform);
 
 		_tiles[new Vector2(x, y)] = spawnedTile;
 	}
@@ -73,17 +72,11 @@ public class GridManager : MonoBehaviourPunCallbacks
 			tile.Value.HightLightTileUpdate();
 	}
 
-	public void DisableEveryLastMoveHighlight()
-	{
-		foreach (var tile in _tiles)
-			tile.Value.DisableLastMoveHighlight();
-	}
-
 	public bool CanSelectedUnitAttackAnyTile()
 	{
 		foreach (var tile in _tiles)
 		{
-			if (tile.Value.CanSelectedUnitAttackThisTile() == true)
+			if (tile.Value.CanUnitAttackThisTile(UnitManager.Instance.SelectedUnit) == true)
 				return true;
 		}
 
@@ -91,27 +84,29 @@ public class GridManager : MonoBehaviourPunCallbacks
 	}
 
 	[PunRPC]
-	public void MoveFromTileToTile(Vector2 From, Vector2 To)
+	public void MoveFromTileToTile(int sender, Vector2 From, Vector2 To)
 	{
-		Tile TileFrom = GetTileAtPosition(new Vector2(9, 9) - From);
-		Tile TileTo = GetTileAtPosition(new Vector2(9, 9) - To);
+		Tile TileFrom = GetTileAtPosition(GetPosInMyTable(sender, From));
+		Tile TileTo = GetTileAtPosition(GetPosInMyTable(sender, To));
+
+		lastMoveTiles.Clear();
+		lastMoveTiles.Add(TileFrom, 0);
+		lastMoveTiles.Add(TileTo, 0);
+		HightLightTileUpdateEveryTile();
+
 		TileTo.SetUnit(TileFrom.OccupiedUnit);
-		TileFrom.HighlightLastMove(0);
-		TileTo.HighlightLastMove(0);
 	}
 
 	[PunRPC]
 	public void SwapUnitsBetweenTiles(int sender, Vector2 pos1, Vector2 pos2)
 	{
-		Tile tile1 = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? pos1 : (new Vector2(9, 9) - pos1));
-		Tile tile2 = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? pos2 : (new Vector2(9, 9) - pos2));
+		Tile tile1 = GetTileAtPosition(GetPosInMyTable(sender, pos1));
+		Tile tile2 = GetTileAtPosition(GetPosInMyTable(sender, pos2));
 
 		if (tile1.OccupiedUnit == null || tile2.OccupiedUnit == null)
 			return;
 
-		Unit temp = tile1.OccupiedUnit;
-		tile1.OccupiedUnit = tile2.OccupiedUnit;
-		tile2.OccupiedUnit = temp;
+		(tile1.OccupiedUnit, tile2.OccupiedUnit) = (tile2.OccupiedUnit, tile1.OccupiedUnit);
 
 		tile1.OccupiedUnit.MoveTo(tile1.transform.position);
 		tile2.OccupiedUnit.MoveTo(tile2.transform.position);
@@ -122,9 +117,11 @@ public class GridManager : MonoBehaviourPunCallbacks
 
 	public Dictionary<Unit, bool> WhoSurvivesOnAttack(Unit AttackerUnit, Unit TargetUnit)
 	{
-		Dictionary<Unit, bool> Survivors = new();
-		Survivors[AttackerUnit] = true;
-		Survivors[TargetUnit] = true;
+		Dictionary<Unit, bool> Survivors = new(2)
+		{
+			[AttackerUnit] = true,
+			[TargetUnit] = true
+		};
 
 		if (TargetUnit.UnitNumber == 12)
 		{
@@ -160,13 +157,16 @@ public class GridManager : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void AttackTile(int sender, Vector2 AttackerPos, Vector2 TargetPos)
 	{
-		Unit AttackerUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? AttackerPos : (new Vector2(9, 9) - AttackerPos)).OccupiedUnit;
-		Unit TargetUnit = GetTileAtPosition((GameManager.Instance.playerArmy == sender) ? TargetPos : (new Vector2(9, 9) - TargetPos)).OccupiedUnit;
+		Unit AttackerUnit = GetTileAtPosition(GetPosInMyTable(sender, AttackerPos)).OccupiedUnit;
+		Unit TargetUnit = GetTileAtPosition(GetPosInMyTable(sender, TargetPos)).OccupiedUnit;
 
 		HUDManager.Instance.ShowUnitInfoOnAttack(AttackerUnit, TargetUnit);
 
-		AttackerUnit.OccupiedTile.HighlightLastMove(1);
-		TargetUnit.OccupiedTile.HighlightLastMove(2);
+		lastMoveTiles.Clear();
+		lastMoveTiles.Add(AttackerUnit.OccupiedTile, 1);
+		lastMoveTiles.Add(TargetUnit.OccupiedTile, 2);
+		HightLightTileUpdateEveryTile();
+
 
 		if (TargetUnit.UnitNumber == 12)
 		{

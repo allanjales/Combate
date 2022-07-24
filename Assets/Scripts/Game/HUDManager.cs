@@ -1,4 +1,3 @@
-using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,8 +6,8 @@ public class HUDManager : MonoBehaviour
 {
 	public static HUDManager Instance;
 	[Header("Army colors")]
-	[SerializeField] public Color _RedArmyColor;
-	[SerializeField] public Color _BlueArmyColor;
+	[SerializeField] private Color _RedArmyColor;
+	[SerializeField] private Color _BlueArmyColor;
 
 	[Header("Unit Infos on Screen")]
 	[SerializeField] private GameObject _SelectedUnitInfoObject;
@@ -24,6 +23,9 @@ public class HUDManager : MonoBehaviour
 	[SerializeField] private Button _BtnDoNotAttack;
 
 	[Space(20)]
+	[SerializeField] private Text _WinnerText;
+
+	[Space(20)]
 	[SerializeField] private List<GameObject> _ListGameStateOwnTurnInfo;
 	[SerializeField] private List<GameObject> _ListGameStateEnemyTurnInfo;
 
@@ -37,15 +39,16 @@ public class HUDManager : MonoBehaviour
 		_TileUnitInfoObject.SetActive(false);
 		_EnemyUnitInfoOnAttack.SetActive(false);
 		_OwnUnitInfoOnAttack.SetActive(false);
+		_WinnerText.gameObject.SetActive(false);
 	}
 
-    private void Update()
+	private void Update()
 	{
 		MoveTileUnitInfoToCursorPosition();
-		TryToShowUnitInfoOnAttack();
+		DrawUnitsInfoOnAttack();
 	}
 
-	private void TryToShowUnitInfoOnAttack()
+	private void DrawUnitsInfoOnAttack()
 	{
 		if (_ShowingSinceUnitInfoOnAttack == -1f)
 			return;
@@ -58,7 +61,7 @@ public class HUDManager : MonoBehaviour
 		}
 	}
 
-	public void ShowSelectedUnit(Unit unit)
+	public void DrawSelectedUnitInfo(Unit unit)
 	{
 		if (unit == null)
 		{
@@ -72,7 +75,7 @@ public class HUDManager : MonoBehaviour
 		_SelectedUnitInfoObject.SetActive(true);
 	}
 
-	public void ShowTileUnit(Tile tile)
+	public void DrawTileUnitInfo(Tile tile)
 	{
 		if (tile == null)
 		{
@@ -146,7 +149,7 @@ public class HUDManager : MonoBehaviour
 
 	public void UpdateBtnDonePositioningAppearence()
 	{
-		_CheckImageBtnReadyPositionate.gameObject.SetActive(GameManager.Instance.positionateUnitsDoneState);
+		_CheckImageBtnReadyPositionate.gameObject.SetActive(GameManager.Instance.PositionateUnitsDoneState);
 		_CheckImageBtnReadyPositionate.GetComponent<Image>().color = (GameManager.Instance.playerArmy == 0) ? _RedArmyColor : _BlueArmyColor;
 		_BtnDonePositionating.GetComponent<Image>().color = (GameManager.Instance.playerArmy == 0) ? _RedArmyColor : _BlueArmyColor;
 
@@ -154,11 +157,11 @@ public class HUDManager : MonoBehaviour
 
 	public void UpdatePositionatingDoneInfo()
 	{
-		_ListGameStateOwnTurnInfo [3].SetActive(false);
+		_ListGameStateOwnTurnInfo[3].SetActive(false);
 		_ListGameStateEnemyTurnInfo[3].SetActive(false);
 		if (GameManager.Instance.IsOtherPlayerDonePositioningUnits())
 			_ListGameStateEnemyTurnInfo[3].SetActive(true);
-		if (GameManager.Instance.positionateUnitsDoneState == true)
+		if (GameManager.Instance.PositionateUnitsDoneState == true)
 			_ListGameStateOwnTurnInfo[3].SetActive(true);
 	}
 
@@ -213,5 +216,18 @@ public class HUDManager : MonoBehaviour
 			default:
 				break;
 		}
+	}
+
+	public void SetWinnerOnText(int winner)
+	{
+		_WinnerText.gameObject.SetActive(true);
+		if (winner == 2)
+			return;
+
+		string playerName = GameManager.Instance.GetArmyOwnerNickName(winner);
+		string colorName = (winner == 0) ? "vermelho" : "azul";
+		string colorHex = ColorUtility.ToHtmlStringRGB((winner == 0) ? _RedArmyColor : _BlueArmyColor);
+
+		_WinnerText.GetComponent<Text>().text = $"<color=#{colorHex}>{playerName}</color> [<color=#{colorHex}>{colorName}</color>] é o vencedor";
 	}
 }

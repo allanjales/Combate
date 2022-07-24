@@ -66,6 +66,8 @@ public class GestorDeRede : MonoBehaviourPunCallbacks
 	[PunRPC]
 	public void ComecaJogo(string nomeCena)
 	{
+		PhotonNetwork.CurrentRoom.IsOpen = false;
+
 		if (PhotonNetwork.PlayerList.Length == PhotonNetwork.CurrentRoom.MaxPlayers)
 			PhotonNetwork.LoadLevel(nomeCena);
 	}

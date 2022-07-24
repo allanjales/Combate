@@ -1,7 +1,6 @@
-using System.Collections;
+using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviourPunCallbacks
@@ -13,7 +12,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 	public int playerArmy;
 	private int _readyToChangeState;
-	public bool positionateUnitsDoneState { get; private set; } = false;
+	public bool PositionateUnitsDoneState { get; private set; } = false;
 
 	private void Awake()
 	{
@@ -69,7 +68,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 		GridManager.Instance.HightLightTileUpdateEveryTile();
 		HUDManager.Instance.UpdateTurnInfo();
 		HUDManager.Instance.UpdateButtonsShow();
-		positionateUnitsDoneState = false;
+		PositionateUnitsDoneState = false;
 	}
 
 	[PunRPC]
@@ -91,26 +90,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 			|| (GameManager.Instance.GameState == GameState.BlueAttack && (GameManager.Instance.playerArmy == 1));
 	}
 
-	public int GetPlayerTurn()
-	{
-		switch (GameManager.Instance.GameState)
-		{
-			case GameState.RedMove:
-				return 0;
-			case GameState.RedAttack:
-				return 0;
-			case GameState.BlueMove:
-				return 1;
-			case GameState.BlueAttack:
-				return 1;
-			default:
-				return -1;
-		}
-	}
-
 	public void NextTurn()
 	{
-		List<GameState> SwitchGameStates = new List<GameState> { GameState.RedMove, GameState.RedAttack, GameState.BlueMove, GameState.BlueAttack };
+		List<GameState> SwitchGameStates = new() { GameState.RedMove, GameState.RedAttack, GameState.BlueMove, GameState.BlueAttack };
 		int index = SwitchGameStates.IndexOf(GameManager.Instance.GameState);
 
 		GameState newGameState = (GameState)((index + 1) % SwitchGameStates.Count + 3);
@@ -120,7 +102,11 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 	public void FinishGame(int winner)
 	{
+		if (IsGameFinished())
+			return;
+
 		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.Finish, true);
+		HUDManager.Instance.SetWinnerOnText(winner);
 	}
 
 	public bool IsMyArmy(int army)
@@ -135,9 +121,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 	public void DonePositioning()
 	{
-		positionateUnitsDoneState = !positionateUnitsDoneState;
+		PositionateUnitsDoneState = !PositionateUnitsDoneState;
 
-		if (positionateUnitsDoneState)
+		if (PositionateUnitsDoneState)
 			photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.RedMove, false);
 		else
 			photonView.RPC("CancelReadyForChangeState", RpcTarget.AllBuffered);
@@ -157,12 +143,47 @@ public class GameManager : MonoBehaviourPunCallbacks
 	}
 
 	public bool IsOtherPlayerDonePositioningUnits()
-    {
-		if (_readyToChangeState >= 1 + (positionateUnitsDoneState ? 1 : 0))
+	{
+		if (_readyToChangeState >= 1 + (PositionateUnitsDoneState ? 1 : 0))
 			return true;
 		return false;
-    }
+	}
 
+	public void CheckIfThereIsAWinner()
+	{
+		if (IsGameFinished())
+			return;
+
+		int winner = -1;
+
+		if (!UnitManager.Instance.ArmyHasUnitsToMove(0) || !UnitManager.Instance.ArmyHasFlag(0))
+			winner = 1;
+
+		if (!UnitManager.Instance.ArmyHasUnitsToMove(1) || !UnitManager.Instance.ArmyHasFlag(1))
+			winner += 1;
+
+		if (winner != -1)
+			FinishGame(winner);
+	}
+
+	public void OnPlayerLeftRoom()
+	{
+		FinishGame(playerArmy);
+	}
+
+	public string GetArmyOwnerNickName(int army)
+	{
+		if (IsMyArmy(army))
+			return PhotonNetwork.LocalPlayer.NickName;
+
+		if (PhotonNetwork.PlayerList[0] != PhotonNetwork.LocalPlayer)
+			return PhotonNetwork.PlayerList[0].NickName;
+
+		if (PhotonNetwork.PlayerList[1] != PhotonNetwork.LocalPlayer)
+			return PhotonNetwork.PlayerList[1].NickName;
+
+		return null;
+	}
 }
 
 public enum GameState
@@ -171,7 +192,7 @@ public enum GameState
 	SpawnUnits = 1,
 	PositionateUnits = 2,
 	RedMove = 3,
-	RedAttack= 4,
+	RedAttack = 4,
 	BlueMove = 5,
 	BlueAttack = 6,
 	Finish = 7

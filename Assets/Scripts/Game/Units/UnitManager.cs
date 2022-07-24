@@ -1,5 +1,4 @@
 using Photon.Pun;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,7 +35,7 @@ public class UnitManager : MonoBehaviourPunCallbacks
 	}
 
 	public void SpawnOwnUnits()
-    {
+	{
 		SpawnUnits(GameManager.Instance.playerArmy);
 	}
 
@@ -62,11 +61,11 @@ public class UnitManager : MonoBehaviourPunCallbacks
 		}
 	}
 
-    [PunRPC]
+	[PunRPC]
 	private void SpawnUnit(int army, int unit, Vector2 pos)
 	{
 		Tile spawnTile = GridManager.Instance.GetTileAtPosition(GridManager.Instance.GetPosInMyTable(army, pos));
-		var spawnedUnit = Instantiate(_unitPrefab, GridManager.Instance.GetPosInMyTable(army, new Vector3(5.5f, 0f)), Quaternion.identity);;
+		var spawnedUnit = Instantiate(_unitPrefab, GridManager.Instance.GetPosInMyTable(army, new Vector3(5.5f, 0f)), Quaternion.identity); ;
 		spawnedUnit.SetUnit(army, unit, unit_names[unit]);
 		spawnedUnit.name = $"Unit{((army == 0) ? "Red" : "Blue")}:{unit_names[unit]}";
 		spawnedUnit.transform.SetParent(this.transform);
@@ -81,17 +80,34 @@ public class UnitManager : MonoBehaviourPunCallbacks
 			return;
 
 		SelectedUnit = unit;
-		HUDManager.Instance.ShowSelectedUnit(unit);
+		HUDManager.Instance.DrawSelectedUnitInfo(unit);
 	}
 
 	public void UpdateEveryUnitSpriteRenderer()
-    {
-        foreach (Unit unit in _UnitList)
+	{
+		foreach (Unit unit in _UnitList)
 			unit.UpdateSpriteRenderer();
-    }
+	}
 
 	public void RemoveUnitFromUnitList(Unit Unit)
-    {
+	{
 		_UnitList.Remove(Unit);
-    }
+	}
+
+	public bool ArmyHasUnitsToMove(int army)
+	{
+		foreach (Unit unit in _UnitList)
+			if (unit.UnitArmy == army && unit.UnitNumber > 0 && unit.UnitNumber < 11 && unit.CanItMove())
+				return true;
+
+		return false;
+	}
+
+	public bool ArmyHasFlag(int army)
+	{
+		foreach (Unit unit in _UnitList)
+			if (unit.UnitArmy == army && unit.UnitNumber == 12)
+				return true;
+		return false;
+	}
 }

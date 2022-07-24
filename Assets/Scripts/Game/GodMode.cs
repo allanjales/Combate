@@ -1,6 +1,4 @@
 using Photon.Pun;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,7 +23,7 @@ public class GodMode : MonoBehaviourPunCallbacks
 	// Update is called once per frame
 	void Update()
 	{
-		if (Input.GetKeyDown("g"))
+		if (Input.GetKeyDown(KeyCode.G))
 		{
 			_isGodModeActive = !_isGodModeActive;
 			UpdateGodModeInfoText();
@@ -34,7 +32,7 @@ public class GodMode : MonoBehaviourPunCallbacks
 		if (!_isGodModeActive)
 			return;
 
-		if (Input.GetKeyDown("n"))
+		if (Input.GetKeyDown(KeyCode.N))
 		{
 			if ((int)GameManager.Instance.GameState < 2)
 				return;
@@ -43,20 +41,20 @@ public class GodMode : MonoBehaviourPunCallbacks
 			UpdateGodModeInfoText();
 		}
 
-		if (Input.GetKeyDown("e"))
+		if (Input.GetKeyDown(KeyCode.E))
 		{
 			_godEye = !_godEye;
 			UpdateGodModeInfoText();
 		}
 
-		if (Input.GetKeyDown("s"))
+		if (Input.GetKeyDown(KeyCode.S))
 		{
 			_seeEnemyUnits = !_seeEnemyUnits;
 			UnitManager.Instance.UpdateEveryUnitSpriteRenderer();
 			UpdateGodModeInfoText();
 		}
 
-		if (Input.GetKeyDown("a"))
+		if (Input.GetKeyDown(KeyCode.A))
 		{
 			_canDeleteUnits = !_canDeleteUnits;
 			UpdateGodModeInfoText();
@@ -72,7 +70,7 @@ public class GodMode : MonoBehaviourPunCallbacks
 		}
 		_godModeInfoText.gameObject.SetActive(true);
 
-		string text = "God Mode Active [G]";
+		string text = "God Mode Active [Ctrl+Shift+G]";
 		text += "\nNext Turn [N]";
 		text += "\nGod Eye [E]: " + _godEye;
 		text += "\nSee Enemy [S]: " + _seeEnemyUnits;

@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using UnityEngine;
 
 public class Menu : MonoBehaviourPunCallbacks
 {
@@ -13,14 +11,14 @@ public class Menu : MonoBehaviourPunCallbacks
 	// Start is called before the first frame update
 	void Start()
 	{
-		_telaCarregando.gameObject.SetActive(true);
+		_telaCarregando.SetActive(true);
 		_menuEntrada.gameObject.SetActive(false);
 		_menuLobby.gameObject.SetActive(false);
 	}
 
 	public override void OnConnectedToMaster()
 	{
-		_telaCarregando.gameObject.SetActive(false);
+		_telaCarregando.SetActive(false);
 		_menuEntrada.gameObject.SetActive(true);
 	}
 
@@ -33,7 +31,7 @@ public class Menu : MonoBehaviourPunCallbacks
 
 	public void MudaMenu(GameObject menu)
 	{
-		_telaCarregando.gameObject.SetActive(false);
+		_telaCarregando.SetActive(false);
 		_menuEntrada.gameObject.SetActive(false);
 		_menuLobby.gameObject.SetActive(false);
 

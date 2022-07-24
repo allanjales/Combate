@@ -1,13 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GameSettings : MonoBehaviour
 {
-    public static GameSettings Instance { get; private set; }
+	public static GameSettings Instance { get; private set; }
 
-    private void Awake()
-    {
+	private void Awake()
+	{
 		if (Instance != null && Instance != this)
 		{
 			gameObject.SetActive(false);
