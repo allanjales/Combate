@@ -74,7 +74,7 @@ public class GodMode : MonoBehaviourPunCallbacks
 		text += "\nNext Turn [N]";
 		text += "\nGod Eye [E]: " + _godEye;
 		text += "\nSee Enemy [S]: " + _seeEnemyUnits;
-		text += "\nAllow Delete [A]: " + _canDeleteUnits;
+		text += "\nAllow [Delete] [A]: " + _canDeleteUnits;
 
 		_godModeInfoText.text = text;
 	}

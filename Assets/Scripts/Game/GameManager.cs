@@ -1,4 +1,5 @@
 using Photon.Pun;
+using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -166,7 +167,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 			FinishGame(winner);
 	}
 
-	public void OnPlayerLeftRoom()
+	public override void OnPlayerLeftRoom(Player otherPlayer)
 	{
 		FinishGame(playerArmy);
 	}

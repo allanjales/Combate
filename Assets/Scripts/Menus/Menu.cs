@@ -53,4 +53,9 @@ public class Menu : MonoBehaviourPunCallbacks
 	{
 		GestorDeRede.Instancia.photonView.RPC("ComecaJogo", RpcTarget.All, nomeCena);
 	}
+
+	public void FecharJogo()
+	{
+		Application.Quit();
+	}
 }
