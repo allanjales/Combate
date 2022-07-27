@@ -7,6 +7,7 @@ public class Menu : MonoBehaviourPunCallbacks
 	[SerializeField] private MenuEntrada _menuEntrada;
 	[SerializeField] private GameObject _telaCarregando;
 	[SerializeField] private MenuLobby _menuLobby;
+	[SerializeField] private GameObject _btnsHolder;
 
 	// Start is called before the first frame update
 	void Start()
@@ -14,12 +15,14 @@ public class Menu : MonoBehaviourPunCallbacks
 		_telaCarregando.SetActive(true);
 		_menuEntrada.gameObject.SetActive(false);
 		_menuLobby.gameObject.SetActive(false);
+		_btnsHolder.SetActive(false);
 	}
 
 	public override void OnConnectedToMaster()
 	{
 		_telaCarregando.SetActive(false);
 		_menuEntrada.gameObject.SetActive(true);
+		_btnsHolder.SetActive(true);
 	}
 
 	public override void OnJoinedRoom()

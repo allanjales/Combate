@@ -23,7 +23,7 @@ public class GodMode : MonoBehaviourPunCallbacks
 	// Update is called once per frame
 	void Update()
 	{
-		if (Input.GetKeyDown(KeyCode.G))
+		if (Input.GetKey(KeyCode.LeftShift) && Input.GetKeyDown(KeyCode.G))
 		{
 			_isGodModeActive = !_isGodModeActive;
 			UpdateGodModeInfoText();
@@ -70,11 +70,11 @@ public class GodMode : MonoBehaviourPunCallbacks
 		}
 		_godModeInfoText.gameObject.SetActive(true);
 
-		string text = "God Mode Active [Ctrl+Shift+G]";
+		string text = "God Mode Active [Shift+G]";
 		text += "\nNext Turn [N]";
 		text += "\nGod Eye [E]: " + _godEye;
 		text += "\nSee Enemy [S]: " + _seeEnemyUnits;
-		text += "\nAllow [Delete] [A]: " + _canDeleteUnits;
+		text += "\nAllow (Delete) [A]: " + _canDeleteUnits;
 
 		_godModeInfoText.text = text;
 	}

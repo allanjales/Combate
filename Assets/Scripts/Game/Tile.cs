@@ -1,5 +1,6 @@
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Tile : MonoBehaviour
 {
@@ -34,6 +35,9 @@ public class Tile : MonoBehaviour
 
 	void OnMouseEnter()
 	{
+		if (EventSystem.current.IsPointerOverGameObject())
+			return;
+
 		//Change highlight hover color
 		if (GameManager.Instance.GameState == GameState.PositionateUnits && OccupiedUnit != null && OccupiedUnit.UnitArmy == GameManager.Instance.playerArmy)
 			_HighlightHover.GetComponent<SpriteRenderer>().color = new Color(_SwapHighlightColor.r, _SwapHighlightColor.g, _SwapHighlightColor.b, _OriginalHighlightHoverColor.a);
@@ -46,6 +50,9 @@ public class Tile : MonoBehaviour
 
 	private void OnMouseOver()
 	{
+		if (EventSystem.current.IsPointerOverGameObject())
+			return;
+
 		if (Input.GetKey(KeyCode.Delete))
 			GodMode.Instance.TryToDeleteUnit(OccupiedUnit);
 	}
@@ -294,12 +301,16 @@ public class Tile : MonoBehaviour
 		//Select
 		if (OccupiedUnit != null && OccupiedUnit.UnitArmy == GameManager.Instance.playerArmy && UnitManager.Instance.SelectedUnit == null)
 		{
-			UnitManager.Instance.SetSelectedUnit((Unit)OccupiedUnit);
+			UnitManager.Instance.SetSelectedUnit(OccupiedUnit);
 			return;
 		}
 
 		//If there is no unit selected, ignore it
 		if (UnitManager.Instance.SelectedUnit == null)
+			return;
+
+		//If there is no unit on tile, ignore it
+		if (OccupiedUnit == null)
 			return;
 
 		//If selected unit is a diferent army, ignore it
@@ -334,6 +345,9 @@ public class Tile : MonoBehaviour
 
 	private void OnMouseDown()
 	{
+		if (EventSystem.current.IsPointerOverGameObject())
+			return;
+
 		if (GameManager.Instance.IsMyAttackTurn())
 			MouseDownOnAttackTurn();
 		else if (GameManager.Instance.GameState == GameState.PositionateUnits)
