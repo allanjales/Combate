@@ -23,6 +23,10 @@ public class GameSettings : MonoBehaviour
 	[SerializeField] private Slider _MusicVolumeSlider;
 	[SerializeField] private Text _MusicVolumeText;
 
+	[Header("Ambient")]
+	[SerializeField] private Slider _AmbientVolumeSlider;
+	[SerializeField] private Text _AmbientVolumeText;
+
 	[Header("Effects")]
 	[SerializeField] private Slider _EffectsVolumeSlider;
 	[SerializeField] private Text _EffectsVolumeText;
@@ -94,6 +98,10 @@ public class GameSettings : MonoBehaviour
 			SetEffectsVolume(PlayerPrefs.GetFloat("EffectsVolume"));
 		else
 			SetEffectsVolume(100);
+		if (PlayerPrefs.HasKey("AmbientVolume"))
+			SetAmbientVolume(PlayerPrefs.GetFloat("AmbientVolume"));
+		else
+			SetAmbientVolume(20);
 	}
 
 	public void OpenSettingsMenu()
@@ -108,6 +116,7 @@ public class GameSettings : MonoBehaviour
 		PlayerPrefs.SetInt("IsFullScreen", _FullscreenToggle.isOn ? 1 : 0);
 		PlayerPrefs.SetFloat("MasterVolume", _MasterVolumeSlider.value);
 		PlayerPrefs.SetFloat("MusicVolume", _MusicVolumeSlider.value);
+		PlayerPrefs.SetFloat("AmbientVolume", _AmbientVolumeSlider.value);
 		PlayerPrefs.SetFloat("EffectsVolume", _EffectsVolumeSlider.value);
 	}
 
@@ -132,6 +141,11 @@ public class GameSettings : MonoBehaviour
 	public void SetEffectsVolume(float volume)
 	{
 		SetVolume(volume, "EffectsVolume", _EffectsVolumeSlider, _EffectsVolumeText);
+	}
+
+	public void SetAmbientVolume(float volume)
+	{
+		SetVolume(volume, "AmbientVolume", _AmbientVolumeSlider, _AmbientVolumeText);
 	}
 
 	private float ConvertFromRangeToRange(float x, float x0, float xf, float y0, float yf)

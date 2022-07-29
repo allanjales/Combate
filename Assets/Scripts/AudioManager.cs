@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
-	[Header("Audio Music Sources")]
-	[SerializeField] AudioSource _Soundtrack;
+	[Header("Audio Ambient/Music Sources")]
+	[SerializeField] List<AudioSource> _LoopSounds;
 
 	[Header("Audio Effects Sources")]
 	[SerializeField] AudioSource _UnitsDistributionSound;
@@ -27,10 +27,11 @@ public class AudioManager : MonoBehaviour
 
 	IEnumerator UnmuteSoundtrack()
 	{
-		if (_Soundtrack == null)
+		if (_LoopSounds == null)
 			yield break;
 		yield return new WaitForSeconds(.05f);
-		_Soundtrack.mute = false;
+		foreach (AudioSource Sounds in _LoopSounds)
+			Sounds.mute = false;
 	}
 
 	/*
