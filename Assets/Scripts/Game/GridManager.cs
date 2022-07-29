@@ -95,7 +95,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 		HightLightTileUpdateEveryTile();
 
 		TileTo.SetUnit(TileFrom.OccupiedUnit);
-		GameAudioManager.Instance.PlayUnitMoveSound();
+		AudioManager.Instance.PlayUnitMoveSound();
 	}
 
 	[PunRPC]
@@ -178,7 +178,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 		Dictionary<Unit, bool> Survivors = WhoSurvivesOnAttack(AttackerUnit, TargetUnit);
 		if (Survivors[AttackerUnit] == false) AttackerUnit.DeleteItself();
 		if (Survivors[TargetUnit] == false) TargetUnit.DeleteItself();
-		GameAudioManager.Instance.PlayUnitKillSound();
+		AudioManager.Instance.PlayUnitKillSound();
 	}
 
 	public Vector2 GetPosInMyTable(int senderArmy, Vector2 pos)

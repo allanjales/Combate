@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameAudioManager : MonoBehaviour
+public class AudioManager : MonoBehaviour
 {
 	[Header("Audio Sources")]
 	[SerializeField] AudioSource _UnitsDistributionSound;
@@ -13,7 +13,7 @@ public class GameAudioManager : MonoBehaviour
 	[Range(0f, .10f)]
 	[SerializeField] float _RandomPitchRange;
 
-	public static GameAudioManager Instance;
+	public static AudioManager Instance;
 
 	private void Awake()
 	{

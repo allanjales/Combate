@@ -14,8 +14,18 @@ public class GameSettings : MonoBehaviour
 
 	[Header("Volume Control")]
 	[SerializeField] private AudioMixer _AudioMixer;
-	[SerializeField] private Slider _VolumeSlider;
-	[SerializeField] private Text _VolumeText;
+
+	[Header("Master")]
+	[SerializeField] private Slider _MasterVolumeSlider;
+	[SerializeField] private Text _MasterVolumeText;
+
+	[Header("Music")]
+	[SerializeField] private Slider _MusicVolumeSlider;
+	[SerializeField] private Text _MusicVolumeText;
+
+	[Header("Effects")]
+	[SerializeField] private Slider _EffectsVolumeSlider;
+	[SerializeField] private Text _EffectsVolumeText;
 
 
 	public static GameSettings Instance { get; private set; }
@@ -37,45 +47,53 @@ public class GameSettings : MonoBehaviour
 		//Resolution Dropdown
 		List<string> DropdownOptions = new();
 		string option;
-		int currentResolutionIndex = -1;
 		for (int i = 0; i < Screen.resolutions.Length; i++)
 		{
-			option = $"{Screen.resolutions[i].width} x {Screen.resolutions[i].height}";
+			option = GetResolutionString(Screen.resolutions[i]);
 			if (DropdownOptions.Contains(option))
 				continue;
 			_Resolutions.Add(Screen.resolutions[i]);
 			DropdownOptions.Add(option);
-
-			// If this is current resolution
-			if (Screen.resolutions[i].width == Screen.currentResolution.width &&
-				Screen.resolutions[i].height == Screen.currentResolution.height && currentResolutionIndex == -1)
-				currentResolutionIndex = i;
-
-			//If can load resolution
-			if (PlayerPrefs.HasKey("Resolution") && PlayerPrefs.GetString("Resolution") == option)
-				currentResolutionIndex = i;
 		}
 		_Resolutions.Insert(0, new Resolution());
-		DropdownOptions.Insert(0, "Custom");
-		currentResolutionIndex++;
+		DropdownOptions.Insert(0, "Personalizado");
+		int currentResolutionIndex = DropdownOptions.FindIndex(x => x == GetResolutionString(Screen.currentResolution));
+		int playerResolutionPrefs = -1;
+		if (PlayerPrefs.HasKey("Resolution"))
+			playerResolutionPrefs = DropdownOptions.FindIndex(x => x == PlayerPrefs.GetString("Resolution"));
+		if (playerResolutionPrefs > 0) currentResolutionIndex = playerResolutionPrefs;
+		if (currentResolutionIndex < 0) currentResolutionIndex = 0;
 		_ResolutionDropdown.ClearOptions();
 		_ResolutionDropdown.AddOptions(DropdownOptions);
-		_ResolutionDropdown.value = currentResolutionIndex;
 		_ResolutionDropdown.RefreshShownValue();
 		SetResolution(currentResolutionIndex);
 
 		//FullScreen
 		_FullscreenToggle.isOn = Screen.fullScreen;
 		if (PlayerPrefs.HasKey("IsFullScreen"))
-		{
-			_FullscreenToggle.isOn = (PlayerPrefs.GetInt("IsFullScreen") == 1) ? true : false;
-		}
+			SetFullScreen((PlayerPrefs.GetInt("IsFullScreen") == 1) ? true : false);
+	}
 
-		//Volume
-		if (PlayerPrefs.HasKey("IsFullScreen"))
-		{
-			SetVolume(PlayerPrefs.GetFloat("Volume"));
-		}
+	private string GetResolutionString(Resolution res)
+	{
+		return $"{res.width} x {res.height}";
+	}
+
+	private void Start()
+	{
+		//Volumes
+		if (PlayerPrefs.HasKey("MasterVolume"))
+			SetMasterVolume(PlayerPrefs.GetFloat("MasterVolume"));
+		else
+			SetMasterVolume(100);
+		if (PlayerPrefs.HasKey("MusicVolume"))
+			SetMusicVolume(PlayerPrefs.GetFloat("MusicVolume"));
+		else
+			SetMusicVolume(20);
+		if (PlayerPrefs.HasKey("EffectsVolume"))
+			SetEffectsVolume(PlayerPrefs.GetFloat("EffectsVolume"));
+		else
+			SetEffectsVolume(100);
 	}
 
 	public void OpenSettingsMenu()
@@ -88,14 +106,32 @@ public class GameSettings : MonoBehaviour
 		_SettingsMenu.SetActive(false);
 		PlayerPrefs.SetString("Resolution", _ResolutionDropdown.options[_ResolutionDropdown.value].text);
 		PlayerPrefs.SetInt("IsFullScreen", _FullscreenToggle.isOn ? 1 : 0);
-		PlayerPrefs.SetFloat("Volume", _VolumeSlider.value);
+		PlayerPrefs.SetFloat("MasterVolume", _MasterVolumeSlider.value);
+		PlayerPrefs.SetFloat("MusicVolume", _MusicVolumeSlider.value);
+		PlayerPrefs.SetFloat("EffectsVolume", _EffectsVolumeSlider.value);
 	}
 
-	public void SetVolume(float volume)
+	private void SetVolume(float volume, string audioMixerParam, Slider VolumeSlider, Text ShowText)
 	{
-		_AudioMixer.SetFloat("VolumeMaster", GetAttenuationFloat(ConvertFromRangeToRange(volume, _VolumeSlider.minValue, _VolumeSlider.maxValue, 0, 1)));
-		_VolumeSlider.value = volume;
-		_VolumeText.text = $"{Mathf.Round(volume)}%";
+		_AudioMixer.SetFloat(audioMixerParam, GetAttenuationFloat(ConvertFromRangeToRange(volume, VolumeSlider.minValue, VolumeSlider.maxValue, 0, 1)));
+		VolumeSlider.value = volume;
+		ShowText.text = $"{Mathf.Round(volume)}%";
+
+	}
+
+	public void SetMasterVolume(float volume)
+	{
+		SetVolume(volume, "MasterVolume", _MasterVolumeSlider, _MasterVolumeText);
+	}
+
+	public void SetMusicVolume(float volume)
+	{
+		SetVolume(volume, "MusicVolume", _MusicVolumeSlider, _MusicVolumeText);
+	}
+
+	public void SetEffectsVolume(float volume)
+	{
+		SetVolume(volume, "EffectsVolume", _EffectsVolumeSlider, _EffectsVolumeText);
 	}
 
 	private float ConvertFromRangeToRange(float x, float x0, float xf, float y0, float yf)
@@ -112,15 +148,17 @@ public class GameSettings : MonoBehaviour
 		return Mathf.Log10(volume) * 20;
 	}
 
-	public void SetFullScreenMode(bool iSFullScreen)
+	public void SetFullScreen(bool isFullScreen)
 	{
-		Screen.fullScreen = iSFullScreen;
+		_FullscreenToggle.isOn = isFullScreen;
+		Screen.fullScreen = isFullScreen;
 	}
 
 	public void SetResolution(int resolutionIndex)
 	{
 		if (_Resolutions[resolutionIndex].width == 0)
 			return;
+		_ResolutionDropdown.value = resolutionIndex;
 		Screen.SetResolution(_Resolutions[resolutionIndex].width, _Resolutions[resolutionIndex].height, Screen.fullScreen);
 	}
 }
