@@ -61,7 +61,7 @@ public class GameSettings : MonoBehaviour
 		int playerResolutionPrefs = -1;
 		if (PlayerPrefs.HasKey("Resolution"))
 			playerResolutionPrefs = DropdownOptions.FindIndex(x => x == PlayerPrefs.GetString("Resolution"));
-		if (playerResolutionPrefs > 0) currentResolutionIndex = playerResolutionPrefs;
+		if (playerResolutionPrefs >= 0) currentResolutionIndex = playerResolutionPrefs;
 		if (currentResolutionIndex < 0) currentResolutionIndex = 0;
 		_ResolutionDropdown.ClearOptions();
 		_ResolutionDropdown.AddOptions(DropdownOptions);

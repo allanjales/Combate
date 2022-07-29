@@ -72,7 +72,7 @@ public class UnitManager : MonoBehaviourPunCallbacks
 		_UnitList.Add(spawnedUnit);
 
 		spawnTile.SetUnit(spawnedUnit);
-		AudioManager.Instance.PlayUnitDistributionSound();
+		AudioManager.Instance.PlayUnitsDistributionSound();
 	}
 
 	public void SetSelectedUnit(Unit unit)

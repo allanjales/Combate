@@ -114,6 +114,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 
 		tile1.OccupiedUnit.OccupiedTile = tile1;
 		tile2.OccupiedUnit.OccupiedTile = tile2;
+		AudioManager.Instance.PlayUnitsSwapSound();
 	}
 
 	public Dictionary<Unit, bool> WhoSurvivesOnAttack(Unit AttackerUnit, Unit TargetUnit)

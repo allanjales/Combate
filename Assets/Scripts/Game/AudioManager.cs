@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
-	[Header("Audio Sources")]
+	[Header("Audio Music Sources")]
+	[SerializeField] AudioSource _Soundtrack;
+
+	[Header("Audio Effects Sources")]
 	[SerializeField] AudioSource _UnitsDistributionSound;
 	[SerializeField] AudioSource _UnitMoveSound;
 	[SerializeField] AudioSource _UnitKillSound;
+	[SerializeField] AudioSource _UnitsSwapSound;
 
 	[Header("Pitch range")]
-	[Range(0f, .10f)]
+	[Range(0f, .25f)]
 	[SerializeField] float _RandomPitchRange;
 
 	public static AudioManager Instance;
@@ -18,6 +22,15 @@ public class AudioManager : MonoBehaviour
 	private void Awake()
 	{
 		Instance = this;
+		StartCoroutine(UnmuteSoundtrack());
+	}
+
+	IEnumerator UnmuteSoundtrack()
+	{
+		if (_Soundtrack == null)
+			yield break;
+		yield return new WaitForSeconds(.05f);
+		_Soundtrack.mute = false;
 	}
 
 	/*
@@ -39,7 +52,7 @@ public class AudioManager : MonoBehaviour
 	 * Sounds Call
 	 */
 
-	public void PlayUnitDistributionSound()
+	public void PlayUnitsDistributionSound()
 	{
 		PlayEffect(_UnitsDistributionSound);
 	}
@@ -52,5 +65,10 @@ public class AudioManager : MonoBehaviour
 	public void PlayUnitKillSound()
 	{
 		PlayEffect(_UnitKillSound);
+	}
+
+	public void PlayUnitsSwapSound()
+	{
+		PlayEffect(_UnitsSwapSound);
 	}
 }
