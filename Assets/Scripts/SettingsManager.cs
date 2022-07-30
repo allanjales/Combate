@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.UI;
 
-public class GameSettings : MonoBehaviour
+public class SettingsManager : MonoBehaviour
 {
 	[Header("Settings Menu")]
 	[SerializeField] private GameObject _SettingsMenu;
@@ -32,7 +32,7 @@ public class GameSettings : MonoBehaviour
 	[SerializeField] private Text _EffectsVolumeText;
 
 
-	public static GameSettings Instance { get; private set; }
+	public static SettingsManager Instance { get; private set; }
 	private List<Resolution> _Resolutions = new();
 
 	private void Awake()

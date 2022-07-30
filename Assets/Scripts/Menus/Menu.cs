@@ -1,6 +1,7 @@
 using Photon.Pun;
 using Photon.Realtime;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviourPunCallbacks
 {
@@ -9,13 +10,15 @@ public class Menu : MonoBehaviourPunCallbacks
 	[SerializeField] private MenuLobby _menuLobby;
 	[SerializeField] private GameObject _btnsHolder;
 
-	// Start is called before the first frame update
+	[SerializeField] private Text _appVersion;
+
 	void Start()
 	{
 		_telaCarregando.SetActive(true);
 		_menuEntrada.gameObject.SetActive(false);
 		_menuLobby.gameObject.SetActive(false);
 		_btnsHolder.SetActive(false);
+		_appVersion.text = $"v{PhotonNetwork.AppVersion}";
 	}
 
 	public override void OnConnectedToMaster()

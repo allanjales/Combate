@@ -28,14 +28,9 @@ public class GestorDeRede : MonoBehaviourPunCallbacks
 		Debug.Log("Conexão bem sucedida.");
 	}
 
-	public bool CriaSala(string nomeSala)
+	public bool EntraOuCriaSala(string nomeSala)
 	{
-		return PhotonNetwork.CreateRoom(nomeSala, new RoomOptions() { MaxPlayers = 2 }, null);
-	}
-
-	public bool EntraSala(string nomeSala)
-	{
-		return PhotonNetwork.JoinRoom(nomeSala);
+		return PhotonNetwork.JoinOrCreateRoom(nomeSala, new RoomOptions() { MaxPlayers = 2 }, null);
 	}
 
 	public void MudaNick(string nickname)

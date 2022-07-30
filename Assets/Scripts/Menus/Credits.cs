@@ -4,11 +4,6 @@ using UnityEngine;
 
 public class Credits : MonoBehaviour
 {
-	private void Awake()
-	{
-		gameObject.SetActive(false);
-	}
-
 	public void OpenCredits()
 	{
 		gameObject.SetActive(true);
