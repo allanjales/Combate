@@ -48,6 +48,9 @@ public class GameManager : MonoBehaviourPunCallbacks
 			return;
 		_readyToChangeState = 0;
 
+		if (!doNotWaitOthersToBeReady && IsGameFinished())
+			return;
+
 		GameState = newState;
 		switch (newState)
 		{
@@ -66,6 +69,8 @@ public class GameManager : MonoBehaviourPunCallbacks
 				break;
 		}
 
+		Debug.Log($"{newState} {doNotWaitOthersToBeReady}");
+
 		GridManager.Instance.HightLightTileUpdateEveryTile();
 		HUDManager.Instance.UpdateTurnInfo();
 		HUDManager.Instance.UpdateButtonsShow();
@@ -81,14 +86,12 @@ public class GameManager : MonoBehaviourPunCallbacks
 
 	public bool IsMyMoveTurn()
 	{
-		return (GameManager.Instance.GameState == GameState.RedMove && (GameManager.Instance.playerArmy == 0))
-			|| GameManager.Instance.GameState == GameState.BlueMove && (GameManager.Instance.playerArmy == 1);
+		return (GameState == GameState.RedMove && (playerArmy == 0)) || GameState == GameState.BlueMove && (playerArmy == 1);
 	}
 
 	public bool IsMyAttackTurn()
 	{
-		return (GameManager.Instance.GameState == GameState.RedAttack && (GameManager.Instance.playerArmy == 0))
-			|| (GameManager.Instance.GameState == GameState.BlueAttack && (GameManager.Instance.playerArmy == 1));
+		return (GameState == GameState.RedAttack && (playerArmy == 0)) || (GameState == GameState.BlueAttack && (playerArmy == 1));
 	}
 
 	public void NextTurn()
@@ -101,13 +104,14 @@ public class GameManager : MonoBehaviourPunCallbacks
 		photonView.RPC("ChangeState", RpcTarget.AllBuffered, newGameState, true);
 	}
 
-	public void FinishGame(int winner)
+	public void FinishGame(GameOverInfo goinfo)
 	{
 		if (IsGameFinished())
 			return;
 
 		photonView.RPC("ChangeState", RpcTarget.AllBuffered, GameState.Finish, true);
-		HUDManager.Instance.SetWinnerOnText(winner);
+		HUDManager.Instance.SetWinnerOnText(goinfo.winner);
+		GameOverScreen.Instance.GameOver(goinfo);
 	}
 
 	public bool IsMyArmy(int army)
@@ -164,12 +168,12 @@ public class GameManager : MonoBehaviourPunCallbacks
 			winner += 1;
 
 		if (winner != -1)
-			FinishGame(winner);
+			FinishGame(new GameOverInfo(winner, GameOverReason.NoMoves));
 	}
 
 	public override void OnPlayerLeftRoom(Player otherPlayer)
 	{
-		FinishGame(playerArmy);
+		FinishGame(new GameOverInfo(playerArmy, GameOverReason.PlayerLeft, otherPlayer));
 	}
 
 	public string GetArmyOwnerNickName(int army)

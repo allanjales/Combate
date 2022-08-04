@@ -228,6 +228,6 @@ public class HUDManager : MonoBehaviour
 		string colorName = (winner == 0) ? "vermelho" : "azul";
 		string colorHex = ColorUtility.ToHtmlStringRGB((winner == 0) ? _RedArmyColor : _BlueArmyColor);
 
-		_WinnerText.GetComponent<Text>().text = $"<color=#{colorHex}>{playerName}</color> [<color=#{colorHex}>{colorName}</color>] é o vencedor";
+		_WinnerText.GetComponent<Text>().text = $"<color=#{colorHex}>{colorName}</color> (<color=#{colorHex}>{playerName}</color>) é o vencedor";
 	}
 }

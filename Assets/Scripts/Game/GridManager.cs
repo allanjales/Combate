@@ -172,7 +172,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 
 		if (TargetUnit.UnitNumber == 12)
 		{
-			GameManager.Instance.FinishGame(AttackerUnit.UnitArmy);
+			GameManager.Instance.FinishGame(new GameOverInfo(AttackerUnit.UnitArmy, GameOverReason.CaptureFlag, AttackerUnit));
 			return;
 		}
 
