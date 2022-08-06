@@ -18,7 +18,7 @@ public class Menu : MonoBehaviourPunCallbacks
 		_menuEntrada.gameObject.SetActive(false);
 		_menuLobby.gameObject.SetActive(false);
 		_btnsHolder.SetActive(false);
-		_appVersion.text = $"v{PhotonNetwork.AppVersion}";
+		_appVersion.text = $"v{PhotonNetwork.AppVersion}({Application.version})";
 	}
 
 	public override void OnConnectedToMaster()

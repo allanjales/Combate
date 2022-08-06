@@ -69,8 +69,6 @@ public class GameManager : MonoBehaviourPunCallbacks
 				break;
 		}
 
-		Debug.Log($"{newState} {doNotWaitOthersToBeReady}");
-
 		GridManager.Instance.HightLightTileUpdateEveryTile();
 		HUDManager.Instance.UpdateTurnInfo();
 		HUDManager.Instance.UpdateButtonsShow();

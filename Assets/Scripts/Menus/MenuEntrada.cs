@@ -97,7 +97,18 @@ public class MenuEntrada : MonoBehaviourPunCallbacks
 
 	public override void OnJoinRoomFailed(short returnCode, string message)
 	{
-		MostrarInfoText($"{returnCode}: {message}", 1);
+		switch (returnCode)
+		{
+			case 32764:
+				MostrarInfoText("Jogo em andamento na sala", 1);
+				break;
+			case 32765:
+				MostrarInfoText("Sala cheia", 1);
+				break;
+			default:
+				MostrarInfoText($"{returnCode}: {message}", 1);
+				break;
+		}
 		DesbloquearBotao();
 	}
 
