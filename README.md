@@ -1,6 +1,6 @@
 # COMBATE ONLINE
 
-![GitHub release (latest by date)](https://img.shields.io/badge/release-v1.2.1-31795E)
+![GitHub release (latest by date)](https://img.shields.io/badge/release-v1.2.2-31795E)
 
 Recriação online do jogo Combate (original [Stratego](https://en.wikipedia.org/wiki/Stratego))
 distribuido pela [Estrela](https://pt.wikipedia.org/wiki/Estrela_(empresa))
@@ -10,21 +10,20 @@ O tema escolhido aqui foi o Combate da Estrela por memórias afetivas.
 
 ## Tabela de conteúdo
 
-- [COMBATE ONLINE]
-- [Tabela de conteúdo]
-- [Como baixar]
-- [Como jogar]
-	- [Necessidades]
-	- [Como abrir]
-	- [Como conectar com um amigo]
-	- [Regras]
-    	- [Objetivo]
-		- [Exército]
-		- [Turnos]
-		- [Movimentação]
-		- [Ataque]
-		- [Como vencer]
-
+- [COMBATE ONLINE](#combate-online)
+- [Tabela de conteúdo](#tabela-de-conteudo)
+- [Como baixar](#como-baixar)
+- [Como jogar](#como-jogar)
+	- [Necessidades](#necessidades)
+	- [Como abrir](#como-abrir)
+	- [Como conectar com um amigo](#como-conectar-com-um-amigo)
+- [Regras](#regras)
+    - [Objetivo](#objetivo)
+	- [Exército](#exercito)
+	- [Turnos](#turno)
+	- [Movimentação](#movimentacao)
+	- [Ataque](#ataque)
+	- [Como vencer](#como-vencer)
 
 ## Como baixar
 
@@ -51,7 +50,7 @@ Note que não é possível e permitido jogar com mais ou menos jogadores.
 
 ### Como abrir
 
-Uma vez com o arquivo `.zip` correspondente ao seu sistema operacional baixado (ver [Como baixar]),
+Uma vez com o arquivo `.zip` correspondente ao seu sistema operacional baixado (ver [Como baixar](#como-baixar)),
 você deve extrai-lo em alguma pasta vazia e abrir o arquivo executável dentro:
 
 - `Combate.exe`
@@ -61,20 +60,20 @@ você deve extrai-lo em alguma pasta vazia e abrir o arquivo executável dentro:
 Para conectar com um amigo, basta que os dois, ao abrirem o jogo,
 digitem o mesmo nome de sala no campo correspondente e digitem algum apelido para si mesmos durante a partida.
 
-### Regras
+## Regras
 
 O Combate é jogado em turnos e todos seus movimentos serão feitos com o mouse.
 
-#### Objetivo
+### Objetivo
 
 Seu objetivo no jogo é capturar a bandeira inimiga.
 
-#### Exército
+### Exército
 
 Seu exército será escolhido aleatóriamente no início de cada partida.
 Como regra, o exército vermelho sempre terá o primeiro movimento da partida.
 
-#### Turnos
+### Turnos
 
 Existem três turnos no jogo:
 
@@ -85,7 +84,7 @@ Este turno só acaba quando os dois jogadores dão pronto;
 - **Turno de ataque**: Quando a peça que o jogador movimentou pode atacar alguma peça,
 o jogador tem o direito de escolha de ataca-la ou não.
 
-#### Movimentação
+### Movimentação
 
 Todas as peças de valores 1 à 10 podem se movimentar.
 As peças que se movimentam só podem andar para quadrados adjacentes.
@@ -93,7 +92,7 @@ As peças que se movimentam só podem andar para quadrados adjacentes.
 O `(2) Soldado` que pode escolher uma direção e andar quantos quadrados quiser até um obstáculo.
 Contudo, ao fazer isso ele perde a oportunidade de atacar em seguida e deve passar o turno pro outro jogador.
 
-#### Ataque
+### Ataque
 
 Para atacar, o adversário deve, com uma peça selecionada, selecionar uma peça adversária num quadrado adjacente.
 
@@ -104,7 +103,7 @@ Ganha a peça que tiver maior número, salvo algumas exeções:
     - Se for um `(3) Cabo-armeiro`, ele desarma a bomba e apenas a bomba sai.
 - Se um `(1) Espião` ataca o `(10) Marechal`, o Marechal sai.
 
-#### Como vencer
+### Como vencer
 
 Existem 3 formas da partida terminar:
 

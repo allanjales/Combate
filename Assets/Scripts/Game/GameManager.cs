@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviourPunCallbacks
 			return;
 		_readyToChangeState = 0;
 
-		if (!doNotWaitOthersToBeReady && IsGameFinished())
+		if (IsGameFinished())
 			return;
 
 		GameState = newState;
@@ -186,6 +186,16 @@ public class GameManager : MonoBehaviourPunCallbacks
 			return PhotonNetwork.PlayerList[1].NickName;
 
 		return null;
+	}
+
+	public string GetMyNickName()
+	{
+		return GetArmyOwnerNickName(playerArmy);
+	}
+
+	public string GetEnemyNickName()
+	{
+		return GetArmyOwnerNickName((playerArmy == 1) ? 0 : 1);
 	}
 }
 

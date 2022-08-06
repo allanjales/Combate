@@ -9,6 +9,10 @@ public class HUDManager : MonoBehaviour
 	[SerializeField] private Color _RedArmyColor;
 	[SerializeField] private Color _BlueArmyColor;
 
+	[Header("Players Name")]
+	[SerializeField] private Text _OwnNameText;
+	[SerializeField] private Text _EnemyNameText;
+
 	[Header("Unit Infos on Screen")]
 	[SerializeField] private GameObject _SelectedUnitInfoObject;
 	[SerializeField] private GameObject _TileUnitInfoObject;
@@ -40,6 +44,9 @@ public class HUDManager : MonoBehaviour
 		_EnemyUnitInfoOnAttack.SetActive(false);
 		_OwnUnitInfoOnAttack.SetActive(false);
 		_WinnerText.gameObject.SetActive(false);
+
+		_OwnNameText.text = GameManager.Instance.GetMyNickName();
+		_EnemyNameText.text = GameManager.Instance.GetEnemyNickName();
 	}
 
 	private void Update()
