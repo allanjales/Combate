@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,6 +8,7 @@ public class Tile : MonoBehaviour
 	[Header("Buttons link")]
 	[SerializeField] private GameObject _HighlightHover;
 	[SerializeField] private GameObject _HighlightPossibilities;
+	[SerializeField] private GameObject _HighlightLastAttack;
 	[SerializeField] private GameObject _HighlightLastMove;
 
 	[Header("Highlight colors")]
@@ -14,7 +16,6 @@ public class Tile : MonoBehaviour
 	[SerializeField] private Color _WalkableHighlightColor;
 	[SerializeField] private Color _AttackableHightlightColor;
 	[SerializeField] private Color _SwapHighlightColor;
-	[SerializeField] private Color _LastMoveHighlightColor;
 	[SerializeField] private Color _LastAttackerHighlightColor;
 	[SerializeField] private Color _LastTargetHighlightColor;
 
@@ -77,27 +78,32 @@ public class Tile : MonoBehaviour
 		 * Last Move
 		 */
 
-		if (GridManager.Instance.lastMoveTiles.ContainsKey(this))
+		_HighlightLastMove.SetActive(false);
+		//_HighlightLastMove.transform.rotation = Quaternion.Euler(0,0,0);
+		_HighlightLastAttack.SetActive(false);
+		if (GridManager.Instance.lastActionTiles.ContainsKey(this))
 		{
-			_HighlightLastMove.SetActive(true);
-			switch (GridManager.Instance.lastMoveTiles[this])
+			switch (GridManager.Instance.lastActionTiles[this])
 			{
-				case 0:
-					_HighlightLastMove.GetComponent<SpriteRenderer>().color = _LastMoveHighlightColor;
+				case LastAction.MoveFrom:
+					_HighlightLastMove.SetActive(true);
+					Tile TileTo = GridManager.Instance.lastActionTiles.Where(t => t.Value == LastAction.MoveTo).First().Key;
+					Vector2 VecDirection = TileTo.transform.position - transform.position;
+					VecDirection.Normalize();
+					_HighlightLastMove.transform.rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(VecDirection.y, VecDirection.x)+90); ;
 					break;
-				case 1:
-					_HighlightLastMove.GetComponent<SpriteRenderer>().color = _LastAttackerHighlightColor;
+				case LastAction.AttackFrom:
+					_HighlightLastAttack.SetActive(true);
+					_HighlightLastAttack.GetComponent<SpriteRenderer>().color = _LastAttackerHighlightColor;
 					break;
-				case 2:
-					_HighlightLastMove.GetComponent<SpriteRenderer>().color = _LastTargetHighlightColor;
+				case LastAction.AttackTo:
+					_HighlightLastAttack.SetActive(true);
+					_HighlightLastAttack.GetComponent<SpriteRenderer>().color = _LastTargetHighlightColor;
 					break;
 				default:
-					_HighlightLastMove.SetActive(false);
 					break;
 			}
 		}
-		else
-			_HighlightLastMove.SetActive(false);
 
 		/*
 		 * Selection

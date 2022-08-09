@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviourPunCallbacks
 	[SerializeField] private Tile _tilePrefab;
 
 	public Dictionary<Vector2, Tile> _tiles = new(92);
-	public Dictionary<Tile, int> lastMoveTiles = new(2);
+	public Dictionary<Tile, LastAction> lastActionTiles = new(2);
 
 	private void Awake()
 	{
@@ -61,9 +61,9 @@ public class GridManager : MonoBehaviourPunCallbacks
 		 * side = 1 -> top
 		 */
 		if (side == 0)
-			return _tiles.Where(t => t.Key.y < 4 && t.Value.Walkable).OrderBy(t => UnityEngine.Random.value).First().Value;
+			return _tiles.Where(t => t.Key.y < 4 && t.Value.Walkable).OrderBy(t => Random.value).First().Value;
 		else
-			return _tiles.Where(t => t.Key.y > 5 && t.Value.Walkable).OrderBy(t => UnityEngine.Random.value).First().Value;
+			return _tiles.Where(t => t.Key.y > 5 && t.Value.Walkable).OrderBy(t => Random.value).First().Value;
 	}
 
 	public void HightLightTileUpdateEveryTile()
@@ -89,9 +89,9 @@ public class GridManager : MonoBehaviourPunCallbacks
 		Tile TileFrom = GetTileAtPosition(GetPosInMyTable(sender, From));
 		Tile TileTo = GetTileAtPosition(GetPosInMyTable(sender, To));
 
-		lastMoveTiles.Clear();
-		lastMoveTiles.Add(TileFrom, 0);
-		lastMoveTiles.Add(TileTo, 0);
+		lastActionTiles.Clear();
+		lastActionTiles.Add(TileFrom, LastAction.MoveFrom);
+		lastActionTiles.Add(TileTo, LastAction.MoveTo);
 		HightLightTileUpdateEveryTile();
 
 		TileTo.SetUnit(TileFrom.OccupiedUnit);
@@ -164,9 +164,9 @@ public class GridManager : MonoBehaviourPunCallbacks
 
 		HUDManager.Instance.ShowUnitInfoOnAttack(AttackerUnit, TargetUnit);
 
-		lastMoveTiles.Clear();
-		lastMoveTiles.Add(AttackerUnit.OccupiedTile, 1);
-		lastMoveTiles.Add(TargetUnit.OccupiedTile, 2);
+		lastActionTiles.Clear();
+		lastActionTiles.Add(AttackerUnit.OccupiedTile, LastAction.AttackFrom);
+		lastActionTiles.Add(TargetUnit.OccupiedTile, LastAction.AttackTo);
 		HightLightTileUpdateEveryTile();
 
 
@@ -186,4 +186,12 @@ public class GridManager : MonoBehaviourPunCallbacks
 	{
 		return (GameManager.Instance.playerArmy == senderArmy) ? pos : (new Vector2(9, 9) - pos);
 	}
+}
+
+public enum LastAction
+{
+	MoveFrom = 0,
+	MoveTo = 1,
+	AttackFrom = 2,
+	AttackTo = 3
 }
