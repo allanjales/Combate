@@ -11,14 +11,25 @@ public class CameraMovement : MonoBehaviour
 	[SerializeField] private float _minZoom = 1;
 	private float _maxZoom;
 
-	private Vector2 _MinCorner, _MaxCorner;
+	private Vector2 _OriginalCameraPosition;
+	private float _originalOrthographicSize;
 
 	private void Awake()
 	{
 		_Camera = GetComponent<Camera>();
 		_maxZoom = _Camera.orthographicSize;
-		_MinCorner = new(_Camera.transform.position.x -  _Camera.orthographicSize * _Camera.aspect, _Camera.transform.position.y -  _Camera.orthographicSize);
-		_MaxCorner = new(_Camera.transform.position.x +  _Camera.orthographicSize * _Camera.aspect, _Camera.transform.position.y +  _Camera.orthographicSize);
+		_OriginalCameraPosition = _Camera.transform.position;
+		_originalOrthographicSize = _Camera.orthographicSize;
+	}
+
+	private Vector2 GetMinCorner()
+	{
+		return new Vector2(_OriginalCameraPosition.x - _originalOrthographicSize * _Camera.aspect, _OriginalCameraPosition.y - _originalOrthographicSize);
+	}
+
+	private Vector2 GetMaxCorner()
+	{
+		return new Vector2(_OriginalCameraPosition.x + _originalOrthographicSize * _Camera.aspect, _OriginalCameraPosition.y + _originalOrthographicSize);
 	}
 
 	void Update()
@@ -55,8 +66,11 @@ public class CameraMovement : MonoBehaviour
 		float camHeight = _Camera.orthographicSize;
 		float camWidth = _Camera.orthographicSize * _Camera.aspect;
 
-		float newX = Mathf.Clamp(targetPosition.x, _MinCorner.x + camWidth, _MaxCorner.x - camWidth);
-		float newY = Mathf.Clamp(targetPosition.y, _MinCorner.y + camHeight, _MaxCorner.y - camHeight);
+		Vector2 MinCorner = GetMinCorner();
+		Vector2 MaxCorner = GetMaxCorner();
+
+		float newX = Mathf.Clamp(targetPosition.x, MinCorner.x + camWidth, MaxCorner.x - camWidth);
+		float newY = Mathf.Clamp(targetPosition.y, MinCorner.y + camHeight, MaxCorner.y - camHeight);
 
 		return new Vector3(newX, newY, targetPosition.z);
 	}
