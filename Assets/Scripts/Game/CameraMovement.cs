@@ -35,8 +35,8 @@ public class CameraMovement : MonoBehaviour
 
 		if (Input.GetMouseButton(1) || Input.GetMouseButton(2))
 		{
-			Vector3 difference = _DragOrigin - _Camera.ScreenToWorldPoint(Input.mousePosition);
-			_Camera.transform.position = ClampCamera(_Camera.transform.position + difference);
+			Vector3 Difference = _DragOrigin - _Camera.ScreenToWorldPoint(Input.mousePosition);
+			_Camera.transform.position = ClampCamera(_Camera.transform.position + Difference);
 		}
 	}
 
@@ -44,8 +44,9 @@ public class CameraMovement : MonoBehaviour
 	{
 		if (Input.mouseScrollDelta.y != 0)
 		{
+			Vector3 OldCursorPosition = _Camera.ScreenToWorldPoint(Input.mousePosition);
 			_Camera.orthographicSize = Mathf.Clamp(_Camera.orthographicSize - Input.mouseScrollDelta.y * _zoomStep, _minZoom, _maxZoom);
-			_Camera.transform.position = ClampCamera(_Camera.transform.position);
+			_Camera.transform.position = ClampCamera(_Camera.transform.position - (_Camera.ScreenToWorldPoint(Input.mousePosition) - OldCursorPosition));
 		}
 	}
 
