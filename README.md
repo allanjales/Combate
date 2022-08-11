@@ -1,6 +1,6 @@
 # COMBATE ONLINE
 
-![GitHub release (latest by date)](https://img.shields.io/badge/release-v1.2.2-31795E)
+![GitHub release (latest by date)](https://img.shields.io/badge/release-v1.2.5-31795E)
 
 Recriação online do jogo Combate (original [Stratego](https://en.wikipedia.org/wiki/Stratego))
 distribuido pela [Estrela](https://pt.wikipedia.org/wiki/Estrela_(empresa))

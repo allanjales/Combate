@@ -44,6 +44,9 @@ public class SettingsManager : MonoBehaviour
 		_SettingsMenu.SetActive(false);
 		Application.targetFrameRate = Screen.currentResolution.refreshRate;
 		DropdownResolutionLoadValues();
+
+		if (Application.platform == RuntimePlatform.Android)
+			_ResolutionDropdown.interactable = false;
 	}
 
 	private void Update()
@@ -198,6 +201,8 @@ public class SettingsManager : MonoBehaviour
 		if (_Resolutions[resolutionIndex].width == 0)
 			return;
 		_ResolutionDropdown.value = resolutionIndex;
+		if (Application.platform == RuntimePlatform.Android)
+			return;
 		Screen.SetResolution(_Resolutions[resolutionIndex].width, _Resolutions[resolutionIndex].height, Screen.fullScreen);
 	}
 }

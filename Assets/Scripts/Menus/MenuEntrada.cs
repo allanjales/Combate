@@ -12,6 +12,12 @@ public class MenuEntrada : MonoBehaviourPunCallbacks
 
 	private bool _canPressButton = true;
 
+	private void Awake()
+	{
+		if (PlayerPrefs.HasKey("playerName"))
+			_nomeDoJogador.text = PlayerPrefs.GetString("playerName");
+	}
+
 	private string GetInputErrors()
 	{
 		if (_nomeDaSala.text == "")
@@ -22,7 +28,7 @@ public class MenuEntrada : MonoBehaviourPunCallbacks
 
 		return null;
 	}
-
+	
 	public void EntraOuCriaSala()
 	{
 		string inputErrors = GetInputErrors();
@@ -39,8 +45,8 @@ public class MenuEntrada : MonoBehaviourPunCallbacks
 		GestorDeRede.Instancia.EntraOuCriaSala(_nomeDaSala.text);
 		BloquearBotao();
 
+		PlayerPrefs.SetString("playerName", _nomeDoJogador.text);
 		MostrarInfoText("Conectando...", 0);
-		//OcultarInfoText();
 	}
 
 	public void MostrarInfoText(string text, int cor)

@@ -14,6 +14,8 @@ public class CameraMovement : MonoBehaviour
 	private Vector2 _OriginalCameraPosition;
 	private float _originalOrthographicSize;
 
+	private Vector2 _touchZeroPos, _touchOnePos;
+
 	private void Awake()
 	{
 		_Camera = GetComponent<Camera>();
@@ -34,11 +36,43 @@ public class CameraMovement : MonoBehaviour
 
 	void Update()
 	{
-		PanCamera();
-		ZoomCamera();
+
+		if (Input.touchCount > 0)
+		{
+			TouchCameraControl();
+			return;
+		}
+
+		PanMouseCamera();
+		ZoomMouseCamera();
 	}
 
-	private void PanCamera()
+	private void TouchCameraControl()
+	{
+		if (Input.touchCount == 2)
+		{
+			Touch touchZero = Input.GetTouch(0);
+			Touch touchOne = Input.GetTouch(1);
+
+			Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+			Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+
+			float prevMagnitude = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+			float currentMagnitude = (touchZero.position - touchOne.position).magnitude;
+
+			float differenceZoom = currentMagnitude - prevMagnitude;
+
+			_Camera.orthographicSize = Mathf.Clamp(_Camera.orthographicSize - differenceZoom * _Camera.orthographicSize / Screen.dpi * 0.95f, _minZoom, _maxZoom);
+
+			Vector2 touchPrevMedPos = (touchZeroPrevPos + touchOnePrevPos) / 2;
+			Vector2 touchCurrentMedPos = (touchZero.position + touchOne.position) / 2;
+
+			Vector3 DifferencePos = touchCurrentMedPos - touchPrevMedPos;
+			_Camera.transform.position = ClampCamera(_Camera.transform.position - DifferencePos * _Camera.orthographicSize / Screen.dpi * 0.95f);
+		}
+	}
+
+	private void PanMouseCamera()
 	{
 		//Save position of mouse when drag starts
 		if (Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
@@ -51,7 +85,7 @@ public class CameraMovement : MonoBehaviour
 		}
 	}
 
-	private void ZoomCamera()
+	private void ZoomMouseCamera()
 	{
 		if (Input.mouseScrollDelta.y != 0)
 		{

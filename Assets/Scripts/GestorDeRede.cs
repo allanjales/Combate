@@ -16,6 +16,7 @@ public class GestorDeRede : MonoBehaviourPunCallbacks
 
 		Instancia = this;
 		DontDestroyOnLoad(gameObject);
+		Screen.sleepTimeout = SleepTimeout.NeverSleep;
 	}
 
 	public void Start()
