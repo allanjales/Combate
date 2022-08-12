@@ -36,6 +36,9 @@ public class Tile : MonoBehaviour
 
 	void OnMouseEnter()
 	{
+		if (!Application.isFocused)
+			return;
+
 		if (EventSystem.current.IsPointerOverGameObject())
 			return;
 
@@ -51,6 +54,9 @@ public class Tile : MonoBehaviour
 
 	private void OnMouseOver()
 	{
+		if (!Application.isFocused)
+			return;
+
 		if (EventSystem.current.IsPointerOverGameObject())
 			return;
 

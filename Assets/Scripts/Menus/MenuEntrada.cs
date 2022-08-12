@@ -12,10 +12,10 @@ public class MenuEntrada : MonoBehaviourPunCallbacks
 
 	private bool _canPressButton = true;
 
-	private void Awake()
+	public void Awake()
 	{
 		if (PlayerPrefs.HasKey("playerName"))
-			_nomeDoJogador.text = PlayerPrefs.GetString("playerName");
+			_nomeDoJogador.GetComponentInParent<InputField>().text = PlayerPrefs.GetString("playerName");
 	}
 
 	private string GetInputErrors()

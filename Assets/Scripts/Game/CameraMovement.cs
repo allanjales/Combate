@@ -26,16 +26,21 @@ public class CameraMovement : MonoBehaviour
 
 	private Vector2 GetMinCorner()
 	{
-		return new Vector2(_OriginalCameraPosition.x - _originalOrthographicSize * _Camera.aspect, _OriginalCameraPosition.y - _originalOrthographicSize);
+		return new Vector2(_OriginalCameraPosition.x - _originalOrthographicSize / ((_Camera.aspect < 1) ? _Camera.aspect : 1) * _Camera.aspect,
+			_OriginalCameraPosition.y - _originalOrthographicSize / ((_Camera.aspect < 1) ? _Camera.aspect : 1));
 	}
 
 	private Vector2 GetMaxCorner()
 	{
-		return new Vector2(_OriginalCameraPosition.x + _originalOrthographicSize * _Camera.aspect, _OriginalCameraPosition.y + _originalOrthographicSize);
+		return new Vector2(_OriginalCameraPosition.x + _originalOrthographicSize / ((_Camera.aspect < 1) ? _Camera.aspect : 1) * _Camera.aspect,
+			_OriginalCameraPosition.y + _originalOrthographicSize / ((_Camera.aspect < 1) ? _Camera.aspect : 1));
 	}
 
 	void Update()
 	{
+		if (_maxZoom == _Camera.orthographicSize)
+			_Camera.orthographicSize = _originalOrthographicSize / ((_Camera.aspect < 1) ? _Camera.aspect : 1);
+		_maxZoom = _originalOrthographicSize / ((_Camera.aspect < 1) ? _Camera.aspect : 1);
 
 		if (Input.touchCount > 0)
 		{
@@ -74,6 +79,9 @@ public class CameraMovement : MonoBehaviour
 
 	private void PanMouseCamera()
 	{
+		if (!Application.isFocused)
+			return;
+
 		//Save position of mouse when drag starts
 		if (Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
 			_DragOrigin = _Camera.ScreenToWorldPoint(Input.mousePosition);
@@ -87,6 +95,9 @@ public class CameraMovement : MonoBehaviour
 
 	private void ZoomMouseCamera()
 	{
+		if (!Application.isFocused)
+			return;
+
 		if (Input.mouseScrollDelta.y != 0)
 		{
 			Vector3 OldCursorPosition = _Camera.ScreenToWorldPoint(Input.mousePosition);
