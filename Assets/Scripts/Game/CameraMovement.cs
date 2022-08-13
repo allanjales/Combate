@@ -60,20 +60,22 @@ public class CameraMovement : MonoBehaviour
 			Touch touchZero = Input.GetTouch(0);
 			Touch touchOne = Input.GetTouch(1);
 
-			Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
-			Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+			if (touchZero.phase == TouchPhase.Moved || touchOne.phase == TouchPhase.Moved)
+			{
+				Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+				Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
 
-			float prevMagnitude = (touchZeroPrevPos - touchOnePrevPos).magnitude;
-			float currentMagnitude = (touchZero.position - touchOne.position).magnitude;
+				float prevMagnitude = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+				float currentMagnitude = (touchZero.position - touchOne.position).magnitude;
 
-			float deltaZoom = prevMagnitude / currentMagnitude * _Camera.orthographicSize - _Camera.orthographicSize;
-			_Camera.orthographicSize = Mathf.Clamp(_Camera.orthographicSize + deltaZoom / 4, _minZoom, _maxZoom);
+				_Camera.orthographicSize = Mathf.Clamp(prevMagnitude / currentMagnitude * _Camera.orthographicSize, _minZoom, _maxZoom);
 
-			Vector2 touchPrevMedPos = (touchZeroPrevPos + touchOnePrevPos) / 2;
-			Vector2 touchCurrentMedPos = (touchZero.position + touchOne.position) / 2;
+				Vector2 touchPrevMedPos = (touchZeroPrevPos + touchOnePrevPos) / 2;
+				Vector2 touchCurrentMedPos = (touchZero.position + touchOne.position) / 2;
 
-			Vector3 DifferencePos = touchCurrentMedPos - touchPrevMedPos;
-			_Camera.transform.position = ClampCamera(_Camera.transform.position - DifferencePos * _Camera.orthographicSize / Screen.dpi / 10);
+				Vector3 DifferencePos = _Camera.ScreenToWorldPoint(touchCurrentMedPos) - _Camera.ScreenToWorldPoint(touchPrevMedPos);
+				_Camera.transform.position = ClampCamera(_Camera.transform.position - DifferencePos);
+			}
 		}
 	}
 

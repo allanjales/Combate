@@ -174,6 +174,11 @@ public class GameManager : MonoBehaviourPunCallbacks
 		FinishGame(new GameOverInfo(playerArmy, GameOverReason.PlayerLeft, otherPlayer));
 	}
 
+	public override void OnDisconnected(DisconnectCause cause)
+	{
+		FinishGame(new GameOverInfo(-1, GameOverReason.Disconnect));
+	}
+
 	public string GetArmyOwnerNickName(int army)
 	{
 		if (IsMyArmy(army))

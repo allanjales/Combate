@@ -241,6 +241,12 @@ public class HUDManager : MonoBehaviour
 		if (winner == 2)
 			return;
 
+		if (winner == -1)
+		{
+			_WinnerText.GetComponent<Text>().text = "Você foi desconectado";
+			return;
+		}
+
 		string playerName = GameManager.Instance.GetArmyOwnerNickName(winner);
 		string colorName = (winner == 0) ? "vermelho" : "azul";
 		string colorHex = ColorUtility.ToHtmlStringRGB((winner == 0) ? _RedArmyColor : _BlueArmyColor);

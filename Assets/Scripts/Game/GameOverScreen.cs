@@ -24,6 +24,12 @@ public class GameOverScreen : MonoBehaviour
 		if (winner == 2)
 			return;
 
+		if (winner == -1)
+		{
+			_WinnerText.GetComponent<Text>().text = $"<color=#{ColorUtility.ToHtmlStringRGB(_RedArmyColor)}>Problemas de conexão</color>";
+			return;
+		}
+
 		string playerName = GameManager.Instance.GetArmyOwnerNickName(winner);
 		if (GameManager.Instance.IsMyArmy(winner))
 			playerName = "Você";
@@ -55,6 +61,9 @@ public class GameOverScreen : MonoBehaviour
 				colorHex = ColorUtility.ToHtmlStringRGB((goinfo.winner == 1) ? _RedArmyColor : _BlueArmyColor);
 				_WinnerReasonText.GetComponent<Text>().text = $"<color=#{colorHex}>{goinfo.PlayerLeft.NickName}</color> saiu da partida";
 				break;
+			case GameOverReason.Disconnect:
+				_WinnerReasonText.GetComponent<Text>().text = "Você foi desconectado";
+				break;
 		}
 	}
 
@@ -80,7 +89,8 @@ public enum GameOverReason
 {
 	NoMoves = 0,
 	CaptureFlag = 1,
-	PlayerLeft = 2
+	PlayerLeft = 2,
+	Disconnect = 3
 }
 
 public struct GameOverInfo

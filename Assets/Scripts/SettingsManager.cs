@@ -237,7 +237,7 @@ public class SettingsManager : MonoBehaviour
 
 	public void OnUIScaleButtonClick()
 	{
-		SetUIScale((_UIScaleValue + 1) % 4);
+		SetUIScale((_UIScaleValue + 1) % 10);
 	}
 
 	private void SetUIScale(int UIScaleValue)
@@ -249,30 +249,48 @@ public class SettingsManager : MonoBehaviour
 				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Constante";
 				Canvass.ForEach(c => c.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize);
 				break;
-			case 2:
-				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Horizontal";
-				Canvass.ForEach(c =>
-				{
-					c.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-					c.GetComponent<CanvasScaler>().matchWidthOrHeight = 0f;
-				});
-				break;
-			case 3:
-				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Vertical";
-				Canvass.ForEach(c =>
-				{
-					c.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-					c.GetComponent<CanvasScaler>().matchWidthOrHeight = 1f;
-				});
-				break;
 			default:
 				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Auto";
-				Canvass.ForEach(c =>
-				{
-					c.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-					c.GetComponent<CanvasScaler>().matchWidthOrHeight = 0.5f;
-				});
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 0.5f));
+				break;
+			case 2:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Horizontal 100%";
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 0f));
+				break;
+			case 3:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Horizontal 75%";
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 0.125f));
+				break;
+			case 4:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Horizontal 50%";
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 0.25f));
+				break;
+			case 5:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Horizontal 25%";
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 0.375f));
+				break;
+			case 6:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Vertical 25%";
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 0.625f));
+				break;
+			case 7:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Vertical 50%";
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 0.75f));
+				break;
+			case 8:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Vertical 75%";
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 0.875f));
+				break;
+			case 9:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Vertical 100%";
+				Canvass.ForEach(c => SetUIScaleWithScreenSize(c.GetComponent<CanvasScaler>(), 1f));
 				break;
 		}
+	}
+
+	private void SetUIScaleWithScreenSize(CanvasScaler scaler, float matchWidthOrHeight)
+	{
+		scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+		scaler.matchWidthOrHeight = matchWidthOrHeight;
 	}
 }
