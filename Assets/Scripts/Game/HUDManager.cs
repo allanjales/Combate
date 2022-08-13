@@ -130,7 +130,17 @@ public class HUDManager : MonoBehaviour
 
 	private void MoveTileUnitInfoToCursorPosition()
 	{
-		_TileUnitInfoObject.transform.position = new Vector3(Input.mousePosition.x + 10f, Input.mousePosition.y - 10f);
+		if (_TileUnitInfoObject.activeSelf)
+			if (Input.touchCount == 0)
+			{
+				_TileUnitInfoObject.GetComponent<RectTransform>().pivot = new Vector2(0, 1);
+				_TileUnitInfoObject.transform.position = new Vector3(Input.mousePosition.x + 10f, Input.mousePosition.y - 10f);
+			}
+			else
+			{
+				_TileUnitInfoObject.GetComponent<RectTransform>().pivot = new Vector2(0.5f, -1.25f);
+				_TileUnitInfoObject.transform.position = new Vector3(Input.mousePosition.x, Input.mousePosition.y);
+			}
 	}
 
 	public void UpdateButtonsShow()

@@ -42,7 +42,14 @@ public class Tile : MonoBehaviour
 		if (EventSystem.current.IsPointerOverGameObject())
 			return;
 
-		//Change highlight hover color
+		if (Input.touchCount > 0)
+			return;
+
+		Highlight();
+	}
+
+	public void Highlight()
+	{
 		if (GameManager.Instance.GameState == GameState.PositionateUnits && OccupiedUnit != null && OccupiedUnit.UnitArmy == GameManager.Instance.playerArmy)
 			_HighlightHover.GetComponent<SpriteRenderer>().color = new Color(_SwapHighlightColor.r, _SwapHighlightColor.g, _SwapHighlightColor.b, _OriginalHighlightHoverColor.a);
 		else
@@ -51,6 +58,13 @@ public class Tile : MonoBehaviour
 		_HighlightHover.SetActive(true);
 		HUDManager.Instance.DrawTileUnitInfo(this);
 	}
+
+	public void Unhighlight()
+	{
+		_HighlightHover.SetActive(false);
+		HUDManager.Instance.DrawTileUnitInfo(null);
+	}
+
 
 	private void OnMouseOver()
 	{
@@ -66,8 +80,7 @@ public class Tile : MonoBehaviour
 
 	void OnMouseExit()
 	{
-		_HighlightHover.SetActive(false);
-		HUDManager.Instance.DrawTileUnitInfo(null);
+		Unhighlight();
 	}
 
 	public void SetUnit(Unit unit)
@@ -96,7 +109,7 @@ public class Tile : MonoBehaviour
 					Tile TileTo = GridManager.Instance.lastActionTiles.Where(t => t.Value == LastAction.MoveTo).First().Key;
 					Vector2 VecDirection = TileTo.transform.position - transform.position;
 					VecDirection.Normalize();
-					_HighlightLastMove.transform.rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(VecDirection.y, VecDirection.x)+90); ;
+					_HighlightLastMove.transform.rotation = Quaternion.Euler(0, 0, Mathf.Rad2Deg * Mathf.Atan2(VecDirection.y, VecDirection.x) + 90); ;
 					break;
 				case LastAction.AttackFrom:
 					_HighlightLastAttack.SetActive(true);
@@ -360,6 +373,14 @@ public class Tile : MonoBehaviour
 		if (EventSystem.current.IsPointerOverGameObject())
 			return;
 
+		if (Input.touchCount > 0)
+			return;
+
+		Click();
+	}
+
+	public void Click()
+	{
 		if (GameManager.Instance.IsMyAttackTurn())
 			MouseDownOnAttackTurn();
 		else if (GameManager.Instance.GameState == GameState.PositionateUnits)

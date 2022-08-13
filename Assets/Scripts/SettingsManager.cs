@@ -12,6 +12,9 @@ public class SettingsManager : MonoBehaviour
 	[SerializeField] private Dropdown _ResolutionDropdown;
 	[SerializeField] private Toggle _FullscreenToggle;
 
+	[Header("Canvas Scaler")]
+	[SerializeField] private Button _UIScaleButton;
+
 	[Header("Volume Control")]
 	[SerializeField] private AudioMixer _AudioMixer;
 
@@ -27,10 +30,16 @@ public class SettingsManager : MonoBehaviour
 	[SerializeField] private Slider _EffectsVolumeSlider;
 	[SerializeField] private Text _EffectsVolumeText;
 
+	[Space(10)]
+	[SerializeField] private List<Canvas> Canvass;
+
 	public static SettingsManager Instance { get; private set; }
 	private List<Resolution> _Resolutions = new();
 	private Vector2 _Resolution = new Vector2(Screen.width, Screen.height);
 	private static bool isGameLaunch = true;
+
+	private string _UIScaleString;
+	private int _UIScaleValue = 1;
 
 	private void Awake()
 	{
@@ -45,7 +54,12 @@ public class SettingsManager : MonoBehaviour
 		Application.targetFrameRate = Screen.currentResolution.refreshRate;
 		DropdownResolutionLoadValues();
 
-		if (Application.platform == RuntimePlatform.Android)
+		_UIScaleString = _UIScaleButton.GetComponentInChildren<Text>().text;
+		if (CanChangeResolution())
+			_UIScaleValue = 0;
+		SetUIScale(_UIScaleValue);
+
+		if (!CanChangeResolution())
 			_ResolutionDropdown.interactable = false;
 	}
 
@@ -120,6 +134,11 @@ public class SettingsManager : MonoBehaviour
 		else
 			SetEffectsVolume(100);
 
+		//UI Scale
+		if (PlayerPrefs.HasKey("UIScaleValue"))
+			SetUIScale(PlayerPrefs.GetInt("UIScaleValue"));
+
+		//Should it continue?
 		if (!(isGameLaunch && isStartLoad))
 			return;
 		isGameLaunch = false;
@@ -139,6 +158,7 @@ public class SettingsManager : MonoBehaviour
 		PlayerPrefs.SetFloat("MasterVolume", _MasterVolumeSlider.value);
 		PlayerPrefs.SetFloat("MusicVolume", _MusicVolumeSlider.value);
 		PlayerPrefs.SetFloat("EffectsVolume", _EffectsVolumeSlider.value);
+		PlayerPrefs.SetInt("UIScaleValue", _UIScaleValue);
 	}
 
 	public void OpenSettingsMenu()
@@ -158,7 +178,6 @@ public class SettingsManager : MonoBehaviour
 		_AudioMixer.SetFloat(audioMixerParam, GetAttenuationFloat(ConvertFromRangeToRange(volume, VolumeSlider.minValue, VolumeSlider.maxValue, 0, 1)));
 		VolumeSlider.value = volume;
 		ShowText.text = $"{Mathf.Round(volume)}%";
-
 	}
 
 	public void SetMasterVolume(float volume)
@@ -196,13 +215,64 @@ public class SettingsManager : MonoBehaviour
 		Screen.fullScreen = isFullScreen;
 	}
 
+	private bool CanChangeResolution()
+	{
+		if (Application.isMobilePlatform)
+			return false;
+
+		return true;
+	}
+
 	public void SetResolution(int resolutionIndex)
 	{
 		if (_Resolutions[resolutionIndex].width == 0)
 			return;
-		_ResolutionDropdown.value = resolutionIndex;
-		if (Application.platform == RuntimePlatform.Android)
+
+		if (!CanChangeResolution())
 			return;
+
+		_ResolutionDropdown.value = resolutionIndex;
 		Screen.SetResolution(_Resolutions[resolutionIndex].width, _Resolutions[resolutionIndex].height, Screen.fullScreen);
+	}
+
+	public void OnUIScaleButtonClick()
+	{
+		SetUIScale((_UIScaleValue + 1) % 4);
+	}
+
+	private void SetUIScale(int UIScaleValue)
+	{
+		_UIScaleValue = UIScaleValue;
+		switch (UIScaleValue)
+		{
+			case 0:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Constante";
+				Canvass.ForEach(c => c.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize);
+				break;
+			case 2:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Horizontal";
+				Canvass.ForEach(c =>
+				{
+					c.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+					c.GetComponent<CanvasScaler>().matchWidthOrHeight = 0f;
+				});
+				break;
+			case 3:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Vertical";
+				Canvass.ForEach(c =>
+				{
+					c.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+					c.GetComponent<CanvasScaler>().matchWidthOrHeight = 1f;
+				});
+				break;
+			default:
+				_UIScaleButton.GetComponentInChildren<Text>().text = _UIScaleString + "Auto";
+				Canvass.ForEach(c =>
+				{
+					c.GetComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+					c.GetComponent<CanvasScaler>().matchWidthOrHeight = 0.5f;
+				});
+				break;
+		}
 	}
 }

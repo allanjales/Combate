@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraMovement : MonoBehaviour
 {
@@ -13,8 +15,6 @@ public class CameraMovement : MonoBehaviour
 
 	private Vector2 _OriginalCameraPosition;
 	private float _originalOrthographicSize;
-
-	private Vector2 _touchZeroPos, _touchOnePos;
 
 	private void Awake()
 	{
@@ -38,9 +38,10 @@ public class CameraMovement : MonoBehaviour
 
 	void Update()
 	{
-		if (_maxZoom == _Camera.orthographicSize)
-			_Camera.orthographicSize = _originalOrthographicSize / ((_Camera.aspect < 1) ? _Camera.aspect : 1);
+		float oldMaxZoom = _maxZoom;
 		_maxZoom = _originalOrthographicSize / ((_Camera.aspect < 1) ? _Camera.aspect : 1);
+		if (_maxZoom != oldMaxZoom)
+			_Camera.orthographicSize = _maxZoom;
 
 		if (Input.touchCount > 0)
 		{
@@ -65,15 +66,14 @@ public class CameraMovement : MonoBehaviour
 			float prevMagnitude = (touchZeroPrevPos - touchOnePrevPos).magnitude;
 			float currentMagnitude = (touchZero.position - touchOne.position).magnitude;
 
-			float differenceZoom = currentMagnitude - prevMagnitude;
-
-			_Camera.orthographicSize = Mathf.Clamp(_Camera.orthographicSize - differenceZoom * _Camera.orthographicSize / Screen.dpi * 0.95f, _minZoom, _maxZoom);
+			float deltaZoom = prevMagnitude / currentMagnitude * _Camera.orthographicSize - _Camera.orthographicSize;
+			_Camera.orthographicSize = Mathf.Clamp(_Camera.orthographicSize + deltaZoom / 4, _minZoom, _maxZoom);
 
 			Vector2 touchPrevMedPos = (touchZeroPrevPos + touchOnePrevPos) / 2;
 			Vector2 touchCurrentMedPos = (touchZero.position + touchOne.position) / 2;
 
 			Vector3 DifferencePos = touchCurrentMedPos - touchPrevMedPos;
-			_Camera.transform.position = ClampCamera(_Camera.transform.position - DifferencePos * _Camera.orthographicSize / Screen.dpi * 0.95f);
+			_Camera.transform.position = ClampCamera(_Camera.transform.position - DifferencePos * _Camera.orthographicSize / Screen.dpi / 10);
 		}
 	}
 

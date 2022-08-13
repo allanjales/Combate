@@ -12,6 +12,8 @@ public class GridManager : MonoBehaviourPunCallbacks
 	public Dictionary<Vector2, Tile> _tiles = new(92);
 	public Dictionary<Tile, LastAction> lastActionTiles = new(2);
 
+	public Tile TouchBeganTile = null;
+
 	private void Awake()
 	{
 		Instance = this;
