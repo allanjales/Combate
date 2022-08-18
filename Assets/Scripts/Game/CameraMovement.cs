@@ -81,7 +81,7 @@ public class CameraMovement : MonoBehaviour
 
 	private void PanMouseCamera()
 	{
-		if (!Application.isFocused)
+		if (CanPlayerInteractWithCamera())
 			return;
 
 		//Save position of mouse when drag starts
@@ -97,7 +97,7 @@ public class CameraMovement : MonoBehaviour
 
 	private void ZoomMouseCamera()
 	{
-		if (!Application.isFocused)
+		if (CanPlayerInteractWithCamera())
 			return;
 
 		if (Input.mouseScrollDelta.y != 0)
@@ -121,4 +121,22 @@ public class CameraMovement : MonoBehaviour
 
 		return new Vector3(newX, newY, targetPosition.z);
 	}
+
+	private bool IsMouseInsideScreen()
+	{
+		Vector3 view = _Camera.ScreenToViewportPoint(Input.mousePosition);
+		return !(view.x < 0 || view.x > 1 || view.y < 0 || view.y > 1);
+	}
+
+	private bool CanPlayerInteractWithCamera()
+	{
+		if (!Application.isFocused)
+			return false;
+
+		if (IsMouseInsideScreen())
+			return false;
+
+		return true;
+	}
+
 }
