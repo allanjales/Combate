@@ -70,7 +70,7 @@ public class GodMode : MonoBehaviourPunCallbacks
 		}
 		_godModeInfoText.gameObject.SetActive(true);
 
-		string text = "God Mode Active [Shift+G]";
+		string text = "God Mode Active";
 		text += "\nNext Turn [N]";
 		text += "\nGod Eye [E]: " + _godEye;
 		text += "\nSee Enemy [S]: " + _seeEnemyUnits;
@@ -81,7 +81,7 @@ public class GodMode : MonoBehaviourPunCallbacks
 
 	public bool IsGodEyeActive()
 	{
-		return _isGodModeActive && _godEye;
+		return _isGodModeActive && (_godEye || _seeEnemyUnits);
 	}
 
 	public bool CanSeeEnemyUnits()
